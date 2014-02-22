@@ -11,8 +11,6 @@
 #define CLI_ENABLED           DISABLED            // disable the CLI (command-line-interface) to save 21K of flash space
 #define LOGGING_ENABLED       DISABLED            // disable dataflash logging to save 11K of flash space
 #define GPS_PROTOCOL 		GPS_PROTOCOL_NONE
-//#define GPS_PROTOCOL          GPS_PROTOCOL_UBLOX  // hard code GPS to Ublox to save 8k of flash
-//#define GPS_PROTOCOL          GPS_PROTOCOL_MTK19  // hard cdoe GPS to Mediatek to save 10k of flash
 //#define AUTOTUNE              DISABLED            // disable the auto tune functionality to save 7k of flash
 //#define CONFIG_SONAR          DISABLED            // disable sonar to save 1k of flash
 

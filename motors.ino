@@ -279,14 +279,6 @@ static void pre_arm_checks(bool display_failure)
         }
     }
 
-    // check GPS
-    if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_GPS)) {
-        // check gps is ok if required - note this same check is repeated again in arm_checks
-        if ((mode_requires_GPS(control_mode) || g.failsafe_gps_enabled == FS_GPS_LAND_EVEN_STABILIZE) && !pre_arm_gps_checks(display_failure)) {
-            return;
-        }
-    }
-
     // check INS
     if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_INS)) {
         // check accelerometers have been calibrated
@@ -394,30 +386,6 @@ static void pre_arm_rc_checks()
     set_pre_arm_rc_check(true);
 }
 
-// performs pre_arm gps related checks and returns true if passed
-static bool pre_arm_gps_checks(bool display_failure)
-{
-    float speed_cms = inertial_nav.get_velocity().length();     // speed according to inertial nav in cm/s
-
-    // ensure GPS is ok and our speed is below 50cm/s
-    if (gps_glitch.glitching() || speed_cms == 0 || speed_cms > PREARM_MAX_VELOCITY_CMS) {
-        if (display_failure) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Bad GPS Pos"));
-        }
-        return false;
-    }
-
-    // warn about hdop separately - to prevent user confusion with no gps lock
-    if (g_gps->hdop > g.gps_hdop_good) {
-        if (display_failure) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: High GPS HDOP"));
-        }
-        return false;
-    }
-
-    // if we got here all must be ok
-    return true;
-}
 
 // arm_checks - perform final checks before arming
 // always called just before arming.  Return true if ok to arm
@@ -434,13 +402,6 @@ static bool arm_checks(bool display_failure)
             if (display_failure) {
                 gcs_send_text_P(SEVERITY_HIGH,PSTR("Arm: Alt disparity"));
             }
-            return false;
-        }
-    }
-
-    // check gps is ok if required - note this same check is also done in pre-arm checks
-    if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_GPS)) {
-        if ((mode_requires_GPS(control_mode) || g.failsafe_gps_enabled == FS_GPS_LAND_EVEN_STABILIZE) && !pre_arm_gps_checks(display_failure)) {
             return false;
         }
     }

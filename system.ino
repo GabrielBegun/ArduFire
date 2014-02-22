@@ -217,11 +217,6 @@ static void init_ardupilot()
  #endif // CONFIG_ADC
 #endif // HIL_MODE
 
-    // Do GPS init
-    g_gps = &g_gps_driver;
-    // GPS Initialization
-    //g_gps->init(hal.uartB, GPS::GPS_ENGINE_AIRBORNE_1G);
-
     if(g.compass_enabled)
         init_compass();
 
@@ -293,7 +288,7 @@ static void init_ardupilot()
 //******************************************************************************
 static void startup_ground(bool force_gyro_cal)
 {
-    gcs_send_text_P(SEVERITY_LOW,PSTR("GROUND START"));
+    
 
     // initialise ahrs (may push imu calibration into the mpu6000 if using that device).
     ahrs.init();

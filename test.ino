@@ -8,7 +8,6 @@
 static int8_t   test_baro(uint8_t argc,                 const Menu::arg *argv);
 #endif
 static int8_t   test_compass(uint8_t argc,              const Menu::arg *argv);
-static int8_t   test_gps(uint8_t argc,                  const Menu::arg *argv);
 static int8_t   test_ins(uint8_t argc,                  const Menu::arg *argv);
 static int8_t   test_logging(uint8_t argc,              const Menu::arg *argv);
 static int8_t   test_motors(uint8_t argc,               const Menu::arg *argv);
@@ -30,7 +29,6 @@ const struct Menu::command test_menu_commands[] PROGMEM = {
     {"baro",                test_baro},
 #endif
     {"compass",             test_compass},
-    {"gps",                 test_gps},
     {"ins",                 test_ins},
     {"logging",             test_logging},
     {"motors",              test_motors},
@@ -164,36 +162,6 @@ test_compass(uint8_t argc, const Menu::arg *argv)
     cliSerial->println_P(PSTR("saving offsets"));
     compass.save_offsets();
     return (0);
-}
-
-static int8_t
-test_gps(uint8_t argc, const Menu::arg *argv)
-{
-    print_hit_enter();
-    delay(1000);
-
-    while(1) {
-        delay(100);
-
-        g_gps->update();
-
-        if (g_gps->new_data) {
-            cliSerial->printf_P(PSTR("Lat: "));
-            print_latlon(cliSerial, g_gps->latitude);
-            cliSerial->printf_P(PSTR(", Lon "));
-            print_latlon(cliSerial, g_gps->longitude);
-            cliSerial->printf_P(PSTR(", Alt: %ldm, #sats: %d\n"),
-                            g_gps->altitude_cm/100,
-                            g_gps->num_sats);
-            g_gps->new_data = false;
-        }else{
-            cliSerial->print_P(PSTR("."));
-        }
-        if(cliSerial->available() > 0) {
-            return (0);
-        }
-    }
-    return 0;
 }
 
 static int8_t

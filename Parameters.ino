@@ -174,6 +174,14 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @User: Standard
     GSCALAR(rtl_alt_final,  "RTL_ALT_FINAL", RTL_ALT_FINAL),
 
+    //BEN ADDED THIS :)
+    // @Param: RELAY_PIN
+    // @DisplayName: Relay pin
+    // @Description: Sets the Pinout for the IO pins for the first relay pin
+    // @Values: -1:Disabled, 0:A0, 1:A1, 2:A2, 13:A13, +54:output
+    // @User: Standard
+    // GSCALAR(relay_pin,            "RELAY_PIN",         55),
+
     // @Param: RSSI_PIN
     // @DisplayName: Receiver RSSI sensing pin
     // @Description: This selects an analog pin for the receiver RSSI voltage. It assumes the voltage is RSSI_RANGE for max rssi, 0V for minimum

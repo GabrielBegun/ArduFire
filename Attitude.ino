@@ -599,7 +599,6 @@ static void get_look_at_yaw()
 static void get_look_ahead_yaw(int16_t pilot_yaw)
 {
     // Commanded Yaw to automatically look ahead.
-        // ORIG - GPS
         control_yaw += pilot_yaw * g.acro_yaw_p * G_Dt;
         control_yaw = wrap_360_cd(control_yaw);
         get_stabilize_yaw(control_yaw);

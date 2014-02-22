@@ -375,8 +375,6 @@ static struct {
     uint8_t rc_override_active  : 1; // 0   // true if rc control are overwritten by ground station
     uint8_t radio               : 1; // 1   // A status flag for the radio failsafe
     uint8_t battery             : 1; // 2   // A status flag for the battery failsafe
-    uint8_t gps                 : 1; // 3   // A status flag for the gps failsafe
-    uint8_t gcs                 : 1; // 4   // A status flag for the ground station failsafe
 
     int8_t radio_counter;                  // number of iterations with throttle below throttle_fs_value
 
@@ -744,10 +742,6 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { update_notify,         2,     100 },
     { one_hz_loop,         100,     420 },
     { crash_check,          10,      20 },
-    { gcs_check_input,	     2,     550 },
-    { gcs_send_heartbeat,  100,     150 },
-    { gcs_send_deferred,     2,     720 },
-    { gcs_data_stream_send,  2,     950 },
     { ten_hz_logging_loop,  10,     300 },
     { fifty_hz_logging_loop, 2,     220 },
     { perf_update,        1000,     200 },
@@ -986,8 +980,6 @@ static void fifty_hz_logging_loop()
 // three_hz_loop - 3.3hz loop
 static void three_hz_loop()
 {
-    // check if we've lost contact with the ground station
-    failsafe_gcs_check();
 
 #if SPRAYER == ENABLED
     sprayer.update();
@@ -1001,7 +993,7 @@ static void three_hz_loop()
 
 // one_hz_loop - runs at 1Hz
 static void one_hz_loop()
-{
+{  
     if (g.log_bitmask != 0) {
         Log_Write_Data(DATA_AP_STATE, ap.value);
     }
@@ -1053,68 +1045,7 @@ static void update_optical_flow(void)
 // called at 50hz
 static void update_GPS(void)
 {
-    return; // ADDED BY ME
-
-    static uint32_t last_gps_reading;           // time of last gps message
-    static uint8_t ground_start_count = 10;     // counter used to grab at least 10 reads before commiting the Home location
-
-    g_gps->update();
-
-    // logging and glitch protection run after every gps message
-    if (g_gps->last_message_time_ms() != last_gps_reading) {
-        last_gps_reading = g_gps->last_message_time_ms();
-
-        // log GPS message
-        if (g.log_bitmask & MASK_LOG_GPS) {
-            DataFlash.Log_Write_GPS(g_gps, current_loc.alt);
-        }
-
-        // run glitch protection and update AP_Notify if home has been initialised
-        if (ap.home_is_set) {
-            gps_glitch.check_position();
-            if (AP_Notify::flags.gps_glitching != gps_glitch.glitching()) {
-                if (gps_glitch.glitching()) {
-                    Log_Write_Error(ERROR_SUBSYSTEM_GPS, ERROR_CODE_GPS_GLITCH);
-                }else{
-                    Log_Write_Error(ERROR_SUBSYSTEM_GPS, ERROR_CODE_ERROR_RESOLVED);
-                }
-                AP_Notify::flags.gps_glitching = gps_glitch.glitching();
-            }
-        }
-    }
-
-    // checks to initialise home and take location based pictures
-    if (g_gps->new_data && g_gps->status() >= GPS::GPS_OK_FIX_3D) {
-        // clear new data flag
-        g_gps->new_data = false;
-
-        // check if we can initialise home yet
-        if (!ap.home_is_set) {
-            // if we have a 3d lock and valid location
-            if(g_gps->status() >= GPS::GPS_OK_FIX_3D && g_gps->latitude != 0) {
-                if( ground_start_count > 0 ) {
-                    ground_start_count--;
-                }else{
-                    // after 10 successful reads store home location
-                    // ap.home_is_set will be true so this will only happen once
-                    ground_start_count = 0;
-                    init_home();
-
-                    // set system clock for log timestamps
-                    hal.util->set_system_clock(g_gps->time_epoch_usec());
-
-                    if (g.compass_enabled) {
-                        // Set compass declination automatically
-                        compass.set_initial_location(g_gps->latitude, g_gps->longitude);
-                    }
-                }
-            }else{
-                // start again if we lose 3d lock
-                ground_start_count = 10;
-            }
-        }
-    }
-
+    return; 
 }
 
 // set_yaw_mode - update yaw mode and initialise any variables required
