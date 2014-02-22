@@ -232,19 +232,6 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-// GPS_PROTOCOL
-//
-#ifndef GPS_PROTOCOL
- # define GPS_PROTOCOL           GPS_PROTOCOL_AUTO
-#endif
-
-
-#ifndef MAV_SYSTEM_ID
- # define MAV_SYSTEM_ID          1
-#endif
-
-
-//////////////////////////////////////////////////////////////////////////////
 // Serial port speeds.
 //
 #ifndef SERIAL0_BAUD

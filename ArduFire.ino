@@ -94,7 +94,6 @@
 #include <AP_HAL_Empty.h>
 
 // Application dependencies
-#include <GCS_MAVLink.h>        // MAVLink GCS definitions
 #include <AP_GPS.h>             // ArduPilot GPS library
 #include <AP_GPS_Glitch.h>      // GPS glitch protection library
 #include <DataFlash.h>          // ArduPilot Mega Flash Memory Library
@@ -260,27 +259,8 @@ static AP_Compass_HMC5843 compass;
  #endif
 
 // real GPS selection
- #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
-AP_GPS_Auto     g_gps_driver(&g_gps);
-
- #elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
-AP_GPS_NMEA     g_gps_driver;
-
- #elif GPS_PROTOCOL == GPS_PROTOCOL_SIRF
-AP_GPS_SIRF     g_gps_driver;
-
- #elif GPS_PROTOCOL == GPS_PROTOCOL_UBLOX
-AP_GPS_UBLOX    g_gps_driver;
-
- #elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
-AP_GPS_MTK      g_gps_driver;
-
- #elif GPS_PROTOCOL == GPS_PROTOCOL_MTK19
-AP_GPS_MTK19    g_gps_driver;
-
- #elif GPS_PROTOCOL == GPS_PROTOCOL_NONE
+ #if GPS_PROTOCOL == GPS_PROTOCOL_NONE
 AP_GPS_None     g_gps_driver;
-
  #else
   #error Unrecognised GPS_PROTOCOL setting.
  #endif // GPS PROTOCOL
@@ -307,12 +287,6 @@ static AP_Baro_HIL      barometer;
 #else
  #error Unrecognised HIL_MODE setting.
 #endif // HIL MODE
-
-////////////////////////////////////////////////////////////////////////////////
-// GCS selection
-////////////////////////////////////////////////////////////////////////////////
-static const uint8_t num_gcs = MAVLINK_COMM_NUM_BUFFERS;
-static GCS_MAVLINK gcs[MAVLINK_COMM_NUM_BUFFERS];
 
 ////////////////////////////////////////////////////////////////////////////////
 // SONAR selection
@@ -1079,6 +1053,8 @@ static void update_optical_flow(void)
 // called at 50hz
 static void update_GPS(void)
 {
+    return; // ADDED BY ME
+
     static uint32_t last_gps_reading;           // time of last gps message
     static uint8_t ground_start_count = 10;     // counter used to grab at least 10 reads before commiting the Home location
 
@@ -1139,8 +1115,6 @@ static void update_GPS(void)
         }
     }
 
-    // check for loss of gps
-    failsafe_gps_check();
 }
 
 // set_yaw_mode - update yaw mode and initialise any variables required

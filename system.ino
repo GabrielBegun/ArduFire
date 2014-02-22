@@ -167,12 +167,8 @@ static void init_ardupilot()
 #endif
 
     // init the GCS
-    gcs[0].init(hal.uartA);
+//    gcs[0].init(hal.uartA);
 
-    // Register the mavlink service callback. This will run
-    // anytime there are more than 5ms remaining in a call to
-    // hal.scheduler->delay.
-    hal.scheduler->register_delay_callback(mavlink_delay_cb, 5);
 
     // we start by assuming USB connected, as we initialed the serial
     // port with SERIAL0_BAUD. check_usb_mux() fixes this if need be.
@@ -192,10 +188,6 @@ static void init_ardupilot()
         gcs[2].init(hal.uartD);
     }
 #endif
-
-    // identify ourselves correctly with the ground station
-    mavlink_system.sysid = g.sysid_this_mav;
-    mavlink_system.type = 2; //MAV_QUADROTOR;
 
 #if LOGGING_ENABLED == ENABLED
     DataFlash.Init(log_structure, sizeof(log_structure)/sizeof(log_structure[0]));
@@ -228,7 +220,7 @@ static void init_ardupilot()
     // Do GPS init
     g_gps = &g_gps_driver;
     // GPS Initialization
-    g_gps->init(hal.uartB, GPS::GPS_ENGINE_AIRBORNE_1G);
+    //g_gps->init(hal.uartB, GPS::GPS_ENGINE_AIRBORNE_1G);
 
     if(g.compass_enabled)
         init_compass();
@@ -251,9 +243,9 @@ static void init_ardupilot()
     if (gcs[1].initialised) {
         hal.uartC->println_P(msg);
     }
-    if (num_gcs > 2 && gcs[2].initialised) {
-        hal.uartD->println_P(msg);
-    }
+    //if (num_gcs > 2 && gcs[2].initialised) {
+    //    hal.uartD->println_P(msg);
+    //} // REMOVED BECAUSE IT RELATED TO MAVLINK
 #endif // CLI_ENABLED
 
 #if HIL_MODE != HIL_MODE_DISABLED
@@ -324,11 +316,7 @@ static void startup_ground(bool force_gyro_cal)
 // returns true if the GPS is ok and home position is set
 static bool GPS_ok()
 {
-    if (g_gps != NULL && ap.home_is_set && g_gps->status() == GPS::GPS_OK_FIX_3D && !gps_glitch.glitching() && !failsafe.gps) {
-        return true;
-    }else{
         return false;
-    }
 }
 
 // returns true or false whether mode requires GPS

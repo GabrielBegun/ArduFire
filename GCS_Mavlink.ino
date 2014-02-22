@@ -435,13 +435,7 @@ static void NOINLINE send_raw_imu1(mavlink_channel_t chan)
 }
 
 static void NOINLINE send_raw_imu2(mavlink_channel_t chan)
-{
-    mavlink_msg_scaled_pressure_send(
-        chan,
-        millis(),
-        barometer.get_pressure()*0.01f, // hectopascal
-        (barometer.get_pressure() - barometer.get_ground_pressure())*0.01f, // hectopascal
-        (int16_t)(barometer.get_temperature()*100)); // 0.01 degrees C
+  {
 }
 
 static void NOINLINE send_raw_imu3(mavlink_channel_t chan)
@@ -467,18 +461,12 @@ static void NOINLINE send_raw_imu3(mavlink_channel_t chan)
 
 static void NOINLINE send_current_waypoint(mavlink_channel_t chan)
 {
-    mavlink_msg_mission_current_send(
-        chan,
-        (uint16_t)g.command_index);
+
 }
 
 static void NOINLINE send_statustext(mavlink_channel_t chan)
 {
-    mavlink_statustext_t *s = &gcs[chan-MAVLINK_COMM_0].pending_status;
-    mavlink_msg_statustext_send(
-        chan,
-        s->severity,
-        s->text);
+ 
 }
 
 // are we still delaying telemetry to try to avoid Xbee bricking?
@@ -501,144 +489,6 @@ static bool telemetry_delayed(mavlink_channel_t chan)
 // try to send a message, return false if it won't fit in the serial tx buffer
 static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id, uint16_t packet_drops)
 {
-    int16_t payload_space = comm_get_txspace(chan) - MAVLINK_NUM_NON_PAYLOAD_BYTES;
-
-    if (telemetry_delayed(chan)) {
-        return false;
-    }
-
-#if HIL_MODE != HIL_MODE_SENSORS
-    // if we don't have at least 250 micros remaining before the main loop
-    // wants to fire then don't send a mavlink message. We want to
-    // prioritise the main flight control loop over communications
-    if (scheduler.time_available_usec() < 250 && motors.armed()) {
-        gcs_out_of_time = true;
-        return false;
-    }
-#endif
-
-    switch(id) {
-    case MSG_HEARTBEAT:
-        CHECK_PAYLOAD_SIZE(HEARTBEAT);
-        gcs[chan-MAVLINK_COMM_0].last_heartbeat_time = hal.scheduler->millis();
-        send_heartbeat(chan);
-        break;
-
-    case MSG_EXTENDED_STATUS1:
-        CHECK_PAYLOAD_SIZE(SYS_STATUS);
-        send_extended_status1(chan, packet_drops);
-        break;
-
-    case MSG_EXTENDED_STATUS2:
-        CHECK_PAYLOAD_SIZE(MEMINFO);
-        gcs[chan-MAVLINK_COMM_0].send_meminfo();
-        break;
-
-    case MSG_ATTITUDE:
-        CHECK_PAYLOAD_SIZE(ATTITUDE);
-        send_attitude(chan);
-        break;
-
-    case MSG_LOCATION:
-        CHECK_PAYLOAD_SIZE(GLOBAL_POSITION_INT);
-        send_location(chan);
-        break;
-
-    case MSG_NAV_CONTROLLER_OUTPUT:
-        CHECK_PAYLOAD_SIZE(NAV_CONTROLLER_OUTPUT);
-        send_nav_controller_output(chan);
-        break;
-
-    case MSG_GPS_RAW:
-        CHECK_PAYLOAD_SIZE(GPS_RAW_INT);
-        send_gps_raw(chan);
-        break;
-
-    case MSG_SYSTEM_TIME:
-        CHECK_PAYLOAD_SIZE(SYSTEM_TIME);
-        send_system_time(chan);
-        break;
-
-    case MSG_SERVO_OUT:
-#if HIL_MODE != HIL_MODE_DISABLED
-        CHECK_PAYLOAD_SIZE(RC_CHANNELS_SCALED);
-        send_servo_out(chan);
-#endif
-        break;
-
-    case MSG_RADIO_IN:
-        CHECK_PAYLOAD_SIZE(RC_CHANNELS_RAW);
-        send_radio_in(chan);
-        break;
-
-    case MSG_RADIO_OUT:
-        CHECK_PAYLOAD_SIZE(SERVO_OUTPUT_RAW);
-        send_radio_out(chan);
-        break;
-
-    case MSG_VFR_HUD:
-        CHECK_PAYLOAD_SIZE(VFR_HUD);
-        send_vfr_hud(chan);
-        break;
-
-    case MSG_RAW_IMU1:
-        CHECK_PAYLOAD_SIZE(RAW_IMU);
-        send_raw_imu1(chan);
-        break;
-
-    case MSG_RAW_IMU2:
-        CHECK_PAYLOAD_SIZE(SCALED_PRESSURE);
-        send_raw_imu2(chan);
-        break;
-
-    case MSG_RAW_IMU3:
-        CHECK_PAYLOAD_SIZE(SENSOR_OFFSETS);
-        send_raw_imu3(chan);
-        break;
-
-    case MSG_CURRENT_WAYPOINT:
-        CHECK_PAYLOAD_SIZE(MISSION_CURRENT);
-        send_current_waypoint(chan);
-        break;
-
-    case MSG_NEXT_PARAM:
-        CHECK_PAYLOAD_SIZE(PARAM_VALUE);
-        gcs[chan-MAVLINK_COMM_0].queued_param_send();
-        break;
-
-    case MSG_NEXT_WAYPOINT:
-        CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
-        gcs[chan-MAVLINK_COMM_0].queued_waypoint_send();
-        break;
-
-    case MSG_STATUSTEXT:
-        CHECK_PAYLOAD_SIZE(STATUSTEXT);
-        send_statustext(chan);
-        break;
-
-    case MSG_AHRS:
-        CHECK_PAYLOAD_SIZE(AHRS);
-        send_ahrs(chan);
-        break;
-
-    case MSG_SIMSTATE:
-        break;
-
-    case MSG_HWSTATUS:
-        CHECK_PAYLOAD_SIZE(HWSTATUS);
-        send_hwstatus(chan);
-        break;
-
-    case MSG_FENCE_STATUS:
-    case MSG_WIND:
-    case MSG_RANGEFINDER:
-        // unused
-        break;
-
-    case MSG_RETRY_DEFERRED:
-        break; // just here to prevent a warning
-    }
-
     return true;
 }
 
@@ -704,20 +554,7 @@ static void mavlink_send_message(mavlink_channel_t chan, enum ap_message id, uin
 
 void mavlink_send_text(mavlink_channel_t chan, gcs_severity severity, const char *str)
 {
-    if (telemetry_delayed(chan)) {
-        return;
-    }
 
-    if (severity == SEVERITY_LOW) {
-        // send via the deferred queuing system
-        mavlink_statustext_t *s = &gcs[chan-MAVLINK_COMM_0].pending_status;
-        s->severity = (uint8_t)severity;
-        strncpy((char *)s->text, str, sizeof(s->text));
-        mavlink_send_message(chan, MSG_STATUSTEXT, 0);
-    } else {
-        // send immediately
-        mavlink_msg_statustext_send(chan, severity, str);
-    }
 }
 
 const AP_Param::GroupInfo GCS_MAVLINK::var_info[] PROGMEM = {
@@ -1959,31 +1796,7 @@ mission_failed:
  */
 static void mavlink_delay_cb()
 {
-    static uint32_t last_1hz, last_50hz, last_5s;
-    if (!gcs[0].initialised || in_mavlink_delay) return;
 
-    in_mavlink_delay = true;
-
-    uint32_t tnow = millis();
-    if (tnow - last_1hz > 1000) {
-        last_1hz = tnow;
-        gcs_send_heartbeat();
-        gcs_send_message(MSG_EXTENDED_STATUS1);
-    }
-    if (tnow - last_50hz > 20) {
-        last_50hz = tnow;
-        gcs_check_input();
-        gcs_data_stream_send();
-        gcs_send_deferred();
-        notify.update();
-    }
-    if (tnow - last_5s > 5000) {
-        last_5s = tnow;
-        gcs_send_text_P(SEVERITY_LOW, PSTR("Initialising APM..."));
-    }
-    check_usb_mux();
-
-    in_mavlink_delay = false;
 }
 
 /*
@@ -1991,11 +1804,7 @@ static void mavlink_delay_cb()
  */
 static void gcs_send_message(enum ap_message id)
 {
-    for (uint8_t i=0; i<num_gcs; i++) {
-        if (gcs[i].initialised) {
-            gcs[i].send_message(id);
-        }
-    }
+  
 }
 
 /*
@@ -2003,11 +1812,7 @@ static void gcs_send_message(enum ap_message id)
  */
 static void gcs_data_stream_send(void)
 {
-    for (uint8_t i=0; i<num_gcs; i++) {
-        if (gcs[i].initialised) {
-            gcs[i].data_stream_send();
-        }
-    }
+   
 }
 
 /*
@@ -2015,20 +1820,12 @@ static void gcs_data_stream_send(void)
  */
 static void gcs_check_input(void)
 {
-    for (uint8_t i=0; i<num_gcs; i++) {
-        if (gcs[i].initialised) {
-            gcs[i].update();
-        }
-    }
+  
 }
 
 static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
 {
-    for (uint8_t i=0; i<num_gcs; i++) {
-        if (gcs[i].initialised) {
-            gcs[i].send_text_P(severity, str);
-        }
-    }
+  
 }
 
 /*
@@ -2038,17 +1835,5 @@ static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
  */
 void gcs_send_text_fmt(const prog_char_t *fmt, ...)
 {
-    va_list arg_list;
-    gcs[0].pending_status.severity = (uint8_t)SEVERITY_LOW;
-    va_start(arg_list, fmt);
-    hal.util->vsnprintf_P((char *)gcs[0].pending_status.text,
-            sizeof(gcs[0].pending_status.text), fmt, arg_list);
-    va_end(arg_list);
-    mavlink_send_message(MAVLINK_COMM_0, MSG_STATUSTEXT, 0);
-    for (uint8_t i=1; i<num_gcs; i++) {
-        if (gcs[i].initialised) {
-            gcs[i].pending_status = gcs[0].pending_status;
-            mavlink_send_message((mavlink_channel_t)i, MSG_STATUSTEXT, 0);
-        }
-    }
+  
 }

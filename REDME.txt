@@ -1,1 +1,10 @@
-To make github happy
+things we removed (or tried)
+D1
+  CAMARA
+  MOUNT
+
+
+D2
+  MAVLink
+  GCS
+  GPS

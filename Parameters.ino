@@ -42,7 +42,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Description: Allows reconising the mavlink version
     // @Range: 1 255
     // @User: Advanced
-    GSCALAR(sysid_this_mav, "SYSID_THISMAV",   MAV_SYSTEM_ID),
+   // GSCALAR(sysid_this_mav, "SYSID_THISMAV",   MAV_SYSTEM_ID),
 
     // @Param: SYSID_MYGCS
     // @DisplayName: My ground station number
@@ -867,6 +867,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Path: ../libraries/AC_WPNav/AC_WPNav.cpp
     GOBJECT(wp_nav, "WPNAV_",       AC_WPNav),
 
+/*
     // @Group: SR0_
     // @Path: GCS_Mavlink.pde
     GOBJECTN(gcs[0],  gcs0,       "SR0_",     GCS_MAVLINK),
@@ -879,6 +880,9 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Group: SR2_
     // @Path: GCS_Mavlink.pde
     GOBJECTN(gcs[2],  gcs2,       "SR2_",     GCS_MAVLINK),
+    
+    */
+#if MAVLINK_COMM_NUM_BUFFERS > 2
 #endif
 
     // @Group: AHRS_

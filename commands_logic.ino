@@ -299,20 +299,12 @@ static void do_land(const struct Location *cmd)
         // set landing state
         land_state = LAND_STATE_DESCENDING;
 
-        // if we have gps lock, attempt to hold horizontal position
-        if (GPS_ok()) {
-            // switch to loiter which restores horizontal control to pilot
-            // To-Do: check that we are not in failsafe to ensure we don't process bad roll-pitch commands
-            set_roll_pitch_mode(ROLL_PITCH_LOITER);
-            // switch into loiter nav mode
-            set_nav_mode(NAV_LOITER);
-        }else{
             // no gps lock so give horizontal control to pilot
             // To-Do: check that we are not in failsafe to ensure we don't process bad roll-pitch commands
             set_roll_pitch_mode(ROLL_PITCH_STABLE);
             // switch into loiter nav mode
             set_nav_mode(NAV_NONE);
-        }
+        
 
         // hold yaw while landing
         set_yaw_mode(YAW_HOLD);

@@ -40,15 +40,6 @@ static void calc_distance_and_bearing()
         wp_distance = 0;
         wp_bearing = 0;
     }
-
-    // calculate home distance and bearing
-    if(GPS_ok()) {
-        home_distance = pythagorous2(curr.x, curr.y);
-        home_bearing = pv_get_bearing_cd(curr,Vector3f(0,0,0));
-
-        // update super simple bearing (if required) because it relies on home_bearing
-        update_super_simple_bearing(false);
-    }
 }
 
 // run_autopilot - highest level call to process mission commands

@@ -169,6 +169,7 @@ static void failsafe_battery_event(void)
 // failsafe_gps_check - check for gps failsafe
 static void failsafe_gps_check()
 {
+/*
     uint32_t last_gps_update_ms;
 
     // return immediately if gps failsafe is disabled or we have never had GPS lock
@@ -212,7 +213,7 @@ static void failsafe_gps_check()
         }else{
             set_mode(LAND);
         }
-    }
+    } */
 }
 
 // failsafe_gps_off_event - actions to take when GPS contact is restored
