@@ -764,6 +764,26 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
 };
 
 
+///////////////////////////////////
+// CUSTOM CODE                   //
+///////////////////////////////////
+
+enum FlyMode {
+    auto_mode = 0,
+    user_mode = 1
+};
+
+FlyMode flymode = user_mode; // default
+
+void checkMode(){
+  if(motors.armed())
+    if(flymode == user_mode) return;
+    else if(g.rc_5.radio_in > 1400) flymode = user_mode;
+  else
+    if(g.rc_5.radio_in > 1400) flymode = user_mode;
+    else flymode = auto_mode;
+}
+
 void setup() 
 {
     cliSerial = hal.console;

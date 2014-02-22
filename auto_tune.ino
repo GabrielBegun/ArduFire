@@ -45,7 +45,7 @@
 #define AUTO_TUNE_MESSAGE_SUCCESS 1
 #define AUTO_TUNE_MESSAGE_FAILED 2
 
-enum AutoTuneTuneMode {
+    enum AutoTuneTuneMode {
     AUTO_TUNE_MODE_UNINITIALISED = 0,
     AUTO_TUNE_MODE_TUNING = 1,
     AUTO_TUNE_MODE_TESTING = 2,
