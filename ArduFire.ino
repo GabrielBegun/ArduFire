@@ -812,11 +812,36 @@ static struct {
 } autocommands;
 
 int dir = 1;
+char buf[255];
+int buf_offset = 0;
+int k = 0;
+
 void readUartB(){
+  if(hal.uartB->available() > 0)
+    while(hal.uartB->available() > 0)
+    {
+      char c = hal.uartB->read();
+      buf[k] = c;  
+      k++;
+      //hal.gpio->write(AN7,LOW);
+      if(c == '\n')
+      {
+        buf[k] = '\0';
+        k = 0;
+        //hal.uartB->printf("%s", buf);
+        //if((int)(buf[0]-48) > 0 && (int)(buf[0]-48) < 8) 
+        autocommands.throttle = 100;
+//        if(strcmp(buf,"0") == 0) autocommands.throttle = 100;
+//        else if(strcmp(buf,"1") == 0) autocommands.throttle = 600;
+//          autocommands.throttle = ((int)buf[0]-48) * 100;
+        //hal.gpio->write(AN7,HIGH);
+        return;
+      }
+    }
   // For now, increases and decresses throttle only 
-  if(autocommands.throttle < 200) dir = 1;
+/*  if(autocommands.throttle < 200) dir = 1;
   else if(autocommands.throttle > 800) dir = -1;
-  autocommands.throttle += dir;
+  autocommands.throttle += dir;*/
 }
 
 
@@ -965,8 +990,9 @@ static void fast_loop()
     
     // update mode according to RC controller
     update_mode();
-    readUartB();
-
+    //readUartB();
+    
+    
     // custom code/exceptions for flight modes
     // ---------------------------------------
     update_yaw_mode();
@@ -1676,12 +1702,15 @@ void update_throttle_mode(void)
 #endif // FRAME_CONFIG != HELI_FRAME
 
     if(flymode == auto_mode){
+      hal.uartB->printf("Auto Throttle %d\n", autocommands.throttle);
       set_throttle_out(autocommands.throttle, false);
-    } else
+      //update_throttle_cruise
+    } else{
+      hal.uartB->printf("Manual Throttle %d\n", get_pilot_desired_throttle(g.rc_3.control_in));
+      
     switch(throttle_mode) {
 
     case THROTTLE_MANUAL:
-        if(flymode == user_mode){
           // completely manual throttle
           if(g.rc_3.control_in <= 0){
               set_throttle_out(0, false);
@@ -1702,13 +1731,6 @@ void update_throttle_mode(void)
                   }
               }
           }
-          
-        } else { // flymode = auto_mode
-          // UPDATE THROTTLE HERE
-          set_throttle_out(autocommands.throttle, false);
-         //update_throttle_cruise
-        }
-        
         set_target_alt_for_reporting(0);
         break;
 
@@ -1797,6 +1819,7 @@ void update_throttle_mode(void)
         break;
 
     }
+    } // TEMP for if statement on flymode
 }
 
 // set_target_alt_for_reporting - set target altitude in cm for reporting purposes (logs and gcs)
