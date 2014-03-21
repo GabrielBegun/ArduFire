@@ -765,99 +765,9 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
 };
 
 
-///////////////////////////////////
-// CUSTOM CODE                   //
-///////////////////////////////////
-// LED PINS - verify numbers
-#define AN5 59
-#define AN6 60
-#define AN7 61
-#define AN8 62
-#define OUTPUT GPIO_OUTPUT
-#define INPUT GPIO_INPUT
-#define HIGH 1
-#define LOW 0
-
-// Fly mode, enum, global variable and update
-enum FlyMode {
-    auto_mode = 0,
-    user_mode = 1
-};
-
-FlyMode flymode = user_mode; // default, global variable
-
-void update_mode(){
-  if(flymode == user_mode){
-    hal.gpio->write(AN7,HIGH);
-  } else {
-    hal.gpio->write(AN7,LOW);
-  }
-  if(g.rc_5.radio_in > 1400) flymode = user_mode;
-  else flymode = auto_mode;
-  /*
-  if(motors.armed())
-    if(flymode == user_mode) return;
-    else if(g.rc_5.radio_in > 1400) flymode = user_mode;
-  else
-    if(g.rc_5.radio_in > 1400) flymode = user_mode;
-    else flymode = auto_mode;*/
-}
-
-//* Read info from BBB */
-static struct {
-  int throttle;
-  int yaw;
-  int pitch;
-  int roll;
-} autocommands;
-
-int dir = 1;
-char buf[255];
-int buf_offset = 0;
-int k = 0;
-
-void readUartB(){
-  if(hal.uartB->available() > 0)
-    while(hal.uartB->available() > 0)
-    {
-      char c = hal.uartB->read();
-      buf[k] = c;  
-      k++;
-      //hal.gpio->write(AN7,LOW);
-      if(c == '\n')
-      {
-        buf[k] = '\0';
-        k = 0;
-        //hal.uartB->printf("%s", buf);
-        //if((int)(buf[0]-48) > 0 && (int)(buf[0]-48) < 8) 
-        autocommands.throttle = 100;
-//        if(strcmp(buf,"0") == 0) autocommands.throttle = 100;
-//        else if(strcmp(buf,"1") == 0) autocommands.throttle = 600;
-//          autocommands.throttle = ((int)buf[0]-48) * 100;
-        //hal.gpio->write(AN7,HIGH);
-        return;
-      }
-    }
-  // For now, increases and decresses throttle only 
-/*  if(autocommands.throttle < 200) dir = 1;
-  else if(autocommands.throttle > 800) dir = -1;
-  autocommands.throttle += dir;*/
-}
 
 
-
-// Runs at the end of the initial setup
-void custom_setup(){
-  hal.gpio->pinMode(AN5, OUTPUT);
-  hal.gpio->pinMode(AN6, OUTPUT);
-  hal.gpio->pinMode(AN7, OUTPUT);
-  hal.gpio->pinMode(AN8, OUTPUT);
-  
-  hal.uartB->begin(9600);
-  autocommands.throttle = 300;
-}
-
-/****/
+/// COPY HERERERERE
 
 
 
@@ -873,8 +783,6 @@ void setup()
 
     // initialise the main loop scheduler
     scheduler.init(&scheduler_tasks[0], sizeof(scheduler_tasks)/sizeof(scheduler_tasks[0]));
-    
-    custom_setup();
     
 }
 
@@ -988,7 +896,7 @@ static void fast_loop()
     read_radio();
     //read_control_switch();
     
-    // update mode according to RC controller
+    // update mode according to RC controller // custom
     update_mode();
     //readUartB();
     
@@ -1701,12 +1609,12 @@ void update_throttle_mode(void)
     }
 #endif // FRAME_CONFIG != HELI_FRAME
 
-    if(flymode == auto_mode){
-      hal.uartB->printf("Auto Throttle %d\n", autocommands.throttle);
-      set_throttle_out(autocommands.throttle, false);
+    if(flymode == auto_mode){ // custom
+      //hal.uartB->printf("Auto Throttle %d\n", receivedCommands.throttle);
+      set_throttle_out(receivedCommands.throttle, false);
       //update_throttle_cruise
     } else{
-      hal.uartB->printf("Manual Throttle %d\n", get_pilot_desired_throttle(g.rc_3.control_in));
+      //hal.uartB->printf("Manual Throttle %d\n", get_pilot_desired_throttle(g.rc_3.control_in));
       
     switch(throttle_mode) {
 

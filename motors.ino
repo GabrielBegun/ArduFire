@@ -108,6 +108,8 @@ static void auto_disarm_check()
 // init_arm_motors - performs arming process including initialisation of barometer and gyros
 static void init_arm_motors()
 {
+    if (motors.armed()) return;
+    
 	// arming marker
     // Flag used to track if we have armed the motors the first time.
     // This is used to decide if we should run the ground_start routine
@@ -133,6 +135,7 @@ static void init_arm_motors()
     // mid-flight, so set the serial ports non-blocking once we arm
     // the motors
     hal.uartA->set_blocking_writes(false);
+    hal.uartB->set_blocking_writes(false); // Also do to B
     hal.uartC->set_blocking_writes(false);
     if (hal.uartD != NULL) {
         hal.uartD->set_blocking_writes(false);

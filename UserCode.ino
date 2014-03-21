@@ -3,8 +3,14 @@
 #ifdef USERHOOK_INIT
 void userhook_init()
 {
-    // put your initialisation code here
-    // this will be called once at start-up
+  hal.gpio->pinMode(AN5, OUTPUT);
+  hal.gpio->pinMode(AN6, OUTPUT);
+  hal.gpio->pinMode(AN7, OUTPUT);
+  hal.gpio->pinMode(AN8, OUTPUT);
+  
+  prepareUartB();
+  
+  hal.uartA->begin(9600);
 }
 #endif
 
@@ -19,6 +25,7 @@ void userhook_FastLoop()
 void userhook_50Hz()
 {
     // put your 50Hz code here
+    sync_uart();
 }
 #endif
 
