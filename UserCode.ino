@@ -26,6 +26,7 @@ void userhook_50Hz()
 {
     // put your 50Hz code here
     sync_uart();
+    arm_LED();
 }
 #endif
 

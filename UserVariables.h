@@ -6,9 +6,18 @@
 // variables
 #ifdef USERHOOK_VARIABLES
 
+////////////////////////////////////////////////////////////////////////////////
+// Motor Output
+////////////////////////////////////////////////////////////////////////////////
+
+ #define MOTOR_CLASS AP_MotorsQuad
+
+static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
+
+
 // LED PINS - verify numbers
-#define AN5 59 // Fly mode
-#define AN6 60
+#define AN5 59 // Fly mode. On means user
+#define AN6 60 // armed
 #define AN7 61 // BBB communication
 #define AN8 62
 #define OUTPUT GPIO_OUTPUT
@@ -121,6 +130,7 @@ int processCommand(char * command){
     case 'z':
     case 'Z': 
       //hal.uartB->printf("Changing PowerOff to %d\n", value);
+      // TODO
       receivedCommands.powerOff = value;
       return 1;
       break;
@@ -131,7 +141,6 @@ int processCommand(char * command){
   }
   return 1;
 }
-
 
 /* Receives a message in the format S03 T1000 Y0000 R1234 */
 void receiveMessage(void){
@@ -174,6 +183,7 @@ void receiveMessage(void){
   }
 }
 
+// TODO
 void sendMessage(void){
   char response[] = "s01E0255";
   hal.uartB->printf("%s",response);
@@ -189,10 +199,19 @@ void sync_uart(void){
     hal.gpio->write(AN7,HIGH); 
     receiveMessage();
     sendMessage();
-    printStatustoUartB();
+    //printStatustoUartB(); 
   } else {
     hal.gpio->write(AN7,LOW);
   }
+}
+
+//////////
+// MISC //
+//////////
+void arm_LED(){
+  //if(receivedCommands.armMotors != 0) hal.gpio->write(AN6, HIGH);  // Change to motors.armed()
+  if(motors.armed()) hal.gpio->write(AN6, HIGH);  // Change to motors.armed()
+  else hal.gpio->write(AN6, LOW);
 }
 
 #endif  // USERHOOK_VARIABLES
