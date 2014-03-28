@@ -184,16 +184,17 @@ void receiveMessage(void){
 
 // TODO
 void sendMessage(void){
-  Vector3f gyro, accel, compass_field, compass_offset; // .x .y .z
+  Vector3f gyro, accel; 
+  //Vector3f &compass_field, compass_offset; // .x .y .z
   float b_voltage = battery.voltage();
   float b_current = battery.current_amps();
   float b_current_mah = battery.current_total_mah();
   gyro = ins.get_gyro();
   accel = ins.get_accel();
   //compass.read();
-  compass_field = compass.get_field();
+  const Vector3f &compass_field = compass.get_field();
   //compass_offset = compass.get_offset();
-  hal.uartB->printf("sbv%fbc%fbm%fgx%fgy%fgz%fax%fay%faz%fcx%fxy%fcz%fmo%d", b_voltage, b_current, b_current_mah, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, compass_field.x, compass_field.y, compass_field.z,flymode);
+  hal.uartB->printf("sbv%fbc%fbm%f\ngx%fgy%fgz%f\nax%fay%faz%f\ncx%fxy%fcz%f\nmo%d\n", b_voltage, b_current, b_current_mah, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, compass_field.x, compass_field.y, compass_field.z,flymode);
 }
   
 void printStatustoUartB(void){
