@@ -5,17 +5,16 @@
 // example variables used in Wii camera testing - replace with your own
 // variables
 #ifdef USERHOOK_VARIABLES
-
-////////////////////////////////////////////////////////////////////////////////
-// Motor Output
-////////////////////////////////////////////////////////////////////////////////
-
- #define MOTOR_CLASS AP_MotorsQuad
+//////////////////////////////////
+// static variables and defines //
+//////////////////////////////////
+// These were originally in ArduFire but I moved them here because of scope
+#define MOTOR_CLASS AP_MotorsQuad
 
 static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
+static AP_BattMonitor battery;
 
-
-// LED PINS - verify numbers
+// LED PINS
 #define AN5 59 // Fly mode. On means user
 #define AN6 60 // armed
 #define AN7 61 // BBB communication
@@ -152,7 +151,7 @@ void receiveMessage(void){
   for(int ii = 0; ii < 5; ii++){
     command[ii] = 'a';
   }
-  hal.uartB->printf("Message Received \n");
+  //hal.uartB->printf("Message Received \n");
   hal.gpio->write(AN7,HIGH);
   for(int ii = 0; ii < 3; ii++){
     data = hal.uartB->read();
@@ -185,8 +184,16 @@ void receiveMessage(void){
 
 // TODO
 void sendMessage(void){
-  char response[] = "s01E0255";
-  hal.uartB->printf("%s",response);
+  Vector3f gyro, accel, compass_field, compass_offset; // .x .y .z
+  float b_voltage = battery.voltage();
+  float b_current = battery.current_amps();
+  float b_current_mah = battery.current_total_mah();
+  gyro = ins.get_gyro();
+  accel = ins.get_accel();
+  //compass.read();
+  compass_field = compass.get_field();
+  //compass_offset = compass.get_offset();
+  hal.uartB->printf("sbv%fbc%fbm%fgx%fgy%fgz%fax%fay%faz%fcx%fxy%fcz%fmo%d", b_voltage, b_current, b_current_mah, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, compass_field.x, compass_field.y, compass_field.z,flymode);
 }
   
 void printStatustoUartB(void){
@@ -209,7 +216,6 @@ void sync_uart(void){
 // MISC //
 //////////
 void arm_LED(){
-  //if(receivedCommands.armMotors != 0) hal.gpio->write(AN6, HIGH);  // Change to motors.armed()
   if(motors.armed()) hal.gpio->write(AN6, HIGH);  // Change to motors.armed()
   else hal.gpio->write(AN6, LOW);
 }
