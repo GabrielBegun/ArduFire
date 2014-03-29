@@ -407,7 +407,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Description: Select which function if performed when CH7 is above 1800 pwm
     // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:Sonar, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM
     // @User: Standard
-    GSCALAR(ch7_option, "CH7_OPT",                  CH7_OPTION),
+    GSCALAR(ch7_option, "CH7_OPT",                  CH7_OPTION),          
 
     // @Param: CH8_OPT
     // @DisplayName: Channel 8 option
@@ -537,7 +537,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: RATE_RLL_IMAX
     // @DisplayName: Roll axis rate controller I gain maximum
     // @Description: Roll axis rate controller I gain maximum.  Constrains the maximum motor output that the I gain will output
-    // @Range: 0 500
+    // @Range: 0 200
     // @Increment: 10
     // @Units: Percent*10
     // @User: Standard
@@ -567,7 +567,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: RATE_PIT_IMAX
     // @DisplayName: Pitch axis rate controller I gain maximum
     // @Description: Pitch axis rate controller I gain maximum.  Constrains the maximum motor output that the I gain will output
-    // @Range: 0 500
+    // @Range: 0 200
     // @Increment: 10
     // @Units: Percent*10
     // @User: Standard
@@ -685,7 +685,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: THR_RATE_IMAX
     // @DisplayName: Throttle rate controller I gain maximum
     // @Description: Throttle rate controller I gain maximum.  Constrains the desired acceleration that the I gain will generate
-    // @Range: 0 500
+    // @Range: 0 300
     // @Units: cm/s/s
     // @User: Standard
 

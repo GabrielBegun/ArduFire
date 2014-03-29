@@ -99,6 +99,8 @@ static void read_battery(void)
     if (!ap.usb_connected && !failsafe.battery && battery.exhausted(g.fs_batt_voltage, g.fs_batt_mah)) {
         failsafe_battery_event();
     }
+
+    
 }
 
 // read the receiver RSSI as an 8 bit number for MAVLink

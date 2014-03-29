@@ -9,8 +9,8 @@ void userhook_init()
   hal.gpio->pinMode(AN8, OUTPUT);
   
   prepareUartB();
-  
-  hal.uartA->begin(9600);
+ 
+  //hal.uartA->begin(9600);
 }
 #endif
 

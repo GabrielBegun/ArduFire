@@ -197,6 +197,7 @@ void sendMessage(void){
   hal.uartB->printf("sbv%fbc%fbm%f\ngx%fgy%fgz%f\nax%fay%faz%f\ncx%fxy%fcz%f\nmo%d\n", b_voltage, b_current, b_current_mah, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, compass_field.x, compass_field.y, compass_field.z,flymode);
 }
   
+// Used for testing
 void printStatustoUartB(void){
   hal.uartB->printf("Status: Armed %d, Pitch %d, Yaw %d, Roll %d, Throttle %d, PowerOff %d\n", receivedCommands.armMotors, receivedCommands.pitch, receivedCommands.yaw, receivedCommands.roll,   receivedCommands.throttle, receivedCommands.powerOff);
 }

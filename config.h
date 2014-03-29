@@ -249,11 +249,11 @@
 // Battery monitoring
 //
 #ifndef FS_BATT_VOLTAGE_DEFAULT
- # define FS_BATT_VOLTAGE_DEFAULT       10.5f       // default battery voltage below which failsafe will be triggered
+ # define FS_BATT_VOLTAGE_DEFAULT       15.3f       // default battery voltage below which failsafe will be triggered
 #endif
 
 #ifndef FS_BATT_MAH_DEFAULT
- # define FS_BATT_MAH_DEFAULT             0         // default battery capacity (in mah) below which failsafe will be triggered
+ # define FS_BATT_MAH_DEFAULT             500         // default battery capacity (in mah) below which failsafe will be triggered
 #endif
 
 #ifndef BOARD_VOLTAGE_MIN
@@ -627,7 +627,7 @@
 
 // Stabilize (angle controller) gains
 #ifndef STABILIZE_ROLL_P
- # define STABILIZE_ROLL_P          4.5f
+ # define STABILIZE_ROLL_P          4.0f
 #endif
 #ifndef STABILIZE_ROLL_I
  # define STABILIZE_ROLL_I          0.0f
@@ -637,7 +637,7 @@
 #endif
 
 #ifndef STABILIZE_PITCH_P
- # define STABILIZE_PITCH_P         4.5f
+ # define STABILIZE_PITCH_P         4.0f
 #endif
 #ifndef STABILIZE_PITCH_I
  # define STABILIZE_PITCH_I         0.0f
@@ -647,7 +647,7 @@
 #endif
 
 #ifndef  STABILIZE_YAW_P
- # define STABILIZE_YAW_P           4.5f            // increase for more aggressive Yaw Hold, decrease if it's bouncy
+ # define STABILIZE_YAW_P           4.0f            // increase for more aggressive Yaw Hold, decrease if it's bouncy
 #endif
 #ifndef  STABILIZE_YAW_I
  # define STABILIZE_YAW_I           0.0f
@@ -687,23 +687,23 @@
 #endif
 
 #ifndef RATE_PITCH_P
- # define RATE_PITCH_P       		0.150f
+ # define RATE_PITCH_P       		0.080f
 #endif
 #ifndef RATE_PITCH_I
- # define RATE_PITCH_I       		0.100f
+ # define RATE_PITCH_I       		0.080f
 #endif
 #ifndef RATE_PITCH_D
  # define RATE_PITCH_D       		0.004f
 #endif
 #ifndef RATE_PITCH_IMAX
- # define RATE_PITCH_IMAX        	500
+ # define RATE_PITCH_IMAX        	200
 #endif
 
 #ifndef RATE_YAW_P
- # define RATE_YAW_P              	0.200f
+ # define RATE_YAW_P              	0.080f
 #endif
 #ifndef RATE_YAW_I
- # define RATE_YAW_I              	0.020f
+ # define RATE_YAW_I              	0.050f
 #endif
 #ifndef RATE_YAW_D
  # define RATE_YAW_D              	0.000f
@@ -782,7 +782,7 @@
 #endif
 
 #ifndef THR_MID_DEFAULT
- # define THR_MID_DEFAULT       500             // Throttle output (0 ~ 1000) when throttle stick is in mid position
+ # define THR_MID_DEFAULT       450             // Throttle output (0 ~ 1000) when throttle stick is in mid position
 #endif
 
 #ifndef THR_MIN_DEFAULT
@@ -841,10 +841,10 @@
 
 // Throttle Accel control
 #ifndef THROTTLE_ACCEL_P
- # define THROTTLE_ACCEL_P  0.75f
+ # define THROTTLE_ACCEL_P  0.51f
 #endif
 #ifndef THROTTLE_ACCEL_I
- # define THROTTLE_ACCEL_I  1.50f
+ # define THROTTLE_ACCEL_I  1.036f
 #endif
 #ifndef THROTTLE_ACCEL_D
  # define THROTTLE_ACCEL_D 0.0f
