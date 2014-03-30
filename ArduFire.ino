@@ -1626,9 +1626,21 @@ void update_throttle_mode(void)
 #endif // FRAME_CONFIG != HELI_FRAME
 
     if(flymode == auto_mode){ // custom
+    // Same idea as Throttle Manual
       //hal.uartB->printf("Auto Throttle %d\n", receivedCommands.throttle);
-      set_throttle_out(receivedCommands.throttle, false);
-      //update_throttle_cruise
+      //set_throttle_out(receivedCommands.throttle, false);
+      //update_throttle_cruise(receivedCommands.throttle);
+     //send pilot's output directly to motors
+      pilot_throttle_scaled = get_pilot_desired_throttle(receivedCommands.throttle);
+      set_throttle_out(pilot_throttle_scaled, false);
+      // check if we've taken off yet
+      if (!ap.takeoff_complete && motors.armed()) {
+          if (pilot_throttle_scaled > g.throttle_cruise) {
+              // we must be in the air by now
+              set_takeoff_complete(true); // this function logs takeoff and landing
+          }
+      }
+      set_target_alt_for_reporting(0);
     } else{
       //hal.uartB->printf("Manual Throttle %d\n", get_pilot_desired_throttle(g.rc_3.control_in));
       

@@ -15,7 +15,7 @@ static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
 static AP_BattMonitor battery;
 
 // LED PINS
-#define AN5 59 // Fly mode. On means user
+#define AN5 59 // Fly mode. One means user
 #define AN6 60 // armed
 #define AN7 61 // BBB communication
 #define AN8 62
@@ -51,8 +51,10 @@ FlyMode flymode = user_mode; // default, global variable
 void update_mode(){
   if(flymode == user_mode){
     hal.gpio->write(AN5,HIGH);
+    failsafe_disable();
   } else {
     hal.gpio->write(AN5,LOW);
+    failsafe_enable();
   }
   if(g.rc_5.radio_in > 1400) flymode = user_mode;
   else flymode = auto_mode;
@@ -142,42 +144,45 @@ int processCommand(char * command){
 }
 
 /* Receives a message in the format S03 T1000 Y0000 R1234 */
+#define WHILELOOPFAILSAFE_MAX 10000 // error check stuff
 void receiveMessage(void){
   char start[3];
   char command[5];
   uint8_t data;
   int num_commands = 0;
+  int whileLoopFailsafe = 0;
   //hal.uartB->flush();
   for(int ii = 0; ii < 5; ii++){
     command[ii] = 'a';
   }
   //hal.uartB->printf("Message Received \n");
-  hal.gpio->write(AN7,HIGH);
+  //hal.gpio->write(AN7,HIGH);
   for(int ii = 0; ii < 3; ii++){
     data = hal.uartB->read();
-    while(!isValid( (char) data)){ data = hal.uartB->read(); } 
+    while(!isValid( (char) data) && (whileLoopFailsafe++) <= WHILELOOPFAILSAFE_MAX){ data = hal.uartB->read(); } 
     start[ii] = (char) data;
   }
   if(start[0] == 's'){
     if(isNumber(start[1])) num_commands = (start[1] - '0') * 10;
-    else hal.uartB->printf("Error in first command [1] \n");
-    if(isNumber(start[2])) num_commands += (start[2] - '0');
-    else hal.uartB->printf("Error in first command [2] \n");
-    hal.uartB->printf("Ready to receive %d commands. \n", num_commands);
+    else { hal.uartB->printf("Error in first command [1] \n"); return; }
+    if(isNumber(start[2])) num_commands += (start[2] - '0'); 
+    else { hal.uartB->printf("Error in first command [2] \n"); return; }
+    //hal.uartB->printf("Ready to receive %d commands. \n", num_commands);
   } else {
     hal.uartB->printf("Error in first command [0]. Got %s\n", start);
     return;
   }
   
   // Receve the rest of the commands
-  while(num_commands--){
-    while(hal.uartB->available() == 0) {} // wait for new data
+  while((num_commands--) && (whileLoopFailsafe++) <= WHILELOOPFAILSAFE_MAX){
+    while(hal.uartB->available() == 0 && (whileLoopFailsafe++) <= WHILELOOPFAILSAFE_MAX) {} // wait for new data. TODO - add exit strategy to avoid infinit loops
     for(int ii = 0; ii < 5; ii++){
       data = hal.uartB->read();
-      while(!isValid( (char) data)){ data = hal.uartB->read(); }
+      while(!isValid( (char) data) && (whileLoopFailsafe++) <= WHILELOOPFAILSAFE_MAX) { data = hal.uartB->read(); }
         command[ii] = (char) data;
     } 
-    hal.uartB->printf("Command %d: %s \n", num_commands, command);
+    //hal.uartB->printf("Command %d: %s \n", num_commands, command);
+    //hal.uartA->printf("Command %d: %s \n", num_commands, command);
     if(processCommand(command) == 0) hal.uartB->printf("Error parsing command!\n");
   }
 }
@@ -198,18 +203,23 @@ void sendMessage(void){
 }
   
 // Used for testing
-void printStatustoUartB(void){
-  hal.uartB->printf("Status: Armed %d, Pitch %d, Yaw %d, Roll %d, Throttle %d, PowerOff %d\n", receivedCommands.armMotors, receivedCommands.pitch, receivedCommands.yaw, receivedCommands.roll,   receivedCommands.throttle, receivedCommands.powerOff);
+void printStatustoUart(void){
+  //hal.uartB->printf("Status: Armed %d, Pitch %d, Yaw %d, Roll %d, Throttle %d, PowerOff %d\n", receivedCommands.armMotors, receivedCommands.pitch, receivedCommands.yaw, receivedCommands.roll,   receivedCommands.throttle, receivedCommands.powerOff);
+  hal.uartA->printf("Status: Armed %d, Pitch %d, Yaw %d, Roll %d, Throttle %d, PowerOff %d\n", receivedCommands.armMotors, receivedCommands.pitch, receivedCommands.yaw, receivedCommands.roll,   receivedCommands.throttle, receivedCommands.powerOff);
 }
 
+
+int flush_count = 0;
 void sync_uart(void){
   int num = hal.uartB->available();
   if(num > 0){
+    //hal.uartA->printf("Got something!");
     hal.gpio->write(AN7,HIGH); 
     receiveMessage();
-    sendMessage();
-    //printStatustoUartB(); 
+    //sendMessage();
+    //printStatustoUart(); 
   } else {
+    //if(flush_count % 30) { hal.uartB->flush(); flush_count++; }
     hal.gpio->write(AN7,LOW);
   }
 }
