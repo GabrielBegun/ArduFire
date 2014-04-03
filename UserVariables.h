@@ -199,7 +199,11 @@ void sendMessage(void){
   //compass.read();
   const Vector3f &compass_field = compass.get_field();
   //compass_offset = compass.get_offset();
-  hal.uartB->printf("sbv%fbc%fbm%f\ngx%fgy%fgz%f\nax%fay%faz%f\ncx%fxy%fcz%f\nmo%d\n", b_voltage, b_current, b_current_mah, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, compass_field.x, compass_field.y, compass_field.z,flymode);
+  hal.uartA->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
+  hal.uartA->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
+  hal.uartA->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
+  hal.uartA->printf("cx%f,xy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
+  hal.uartA->printf("mo%d,ar%d,\n",flymode,motors.armed());
 }
   
 // Used for testing
@@ -212,6 +216,7 @@ void printStatustoUart(void){
 int flush_count = 0;
 void sync_uart(void){
   int num = hal.uartB->available();
+  sendMessage(); // RMOVE
   if(num > 0){
     //hal.uartA->printf("Got something!");
     hal.gpio->write(AN7,HIGH); 

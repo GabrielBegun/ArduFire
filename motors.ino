@@ -178,12 +178,12 @@ static void init_arm_motors()
     motors.set_mid_throttle(g.throttle_mid);
 
     // Cancel arming if throttle is raised too high so that copter does not suddenly take off
-    read_radio();
-    if (g.rc_3.control_in > g.throttle_cruise && g.throttle_cruise > 100) {
+//    read_radio();
+/*    if (g.rc_3.control_in > g.throttle_cruise && g.throttle_cruise > 100) {
         motors.output_min();
         failsafe_enable();
         return;
-    }
+    } */
 
 #if SPRAYER == ENABLED
     // turn off sprayer's test if on
@@ -200,7 +200,7 @@ static void init_arm_motors()
     Log_Write_Event(DATA_ARMED);
 
     // reenable failsafe
-    failsafe_enable();
+    //failsafe_enable();
 }
 
 // perform pre-arm checks and set ap.pre_arm_check flag
