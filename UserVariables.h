@@ -201,7 +201,7 @@ void sendMessage(void){
   hal.uartB->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
   hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
   hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
-  hal.uartB->printf("cx%f,xy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
+  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
   hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed());
 }
   
@@ -215,7 +215,6 @@ void printStatustoUart(void){
 int flush_count = 0;
 void sync_uart(void){
   int num = hal.uartB->available();
-  sendMessage(); // RMOVE
   if(num > 0){
     //hal.uartA->printf("Got something!");
     hal.gpio->write(AN7,HIGH); 
