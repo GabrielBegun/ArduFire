@@ -187,7 +187,6 @@ void receiveMessage(void){
   }
 }
 
-// TODO
 void sendMessage(void){
   Vector3f gyro, accel; 
   //Vector3f &compass_field, compass_offset; // .x .y .z
@@ -199,11 +198,11 @@ void sendMessage(void){
   //compass.read();
   const Vector3f &compass_field = compass.get_field();
   //compass_offset = compass.get_offset();
-  hal.uartA->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
-  hal.uartA->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
-  hal.uartA->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
-  hal.uartA->printf("cx%f,xy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
-  hal.uartA->printf("mo%d,ar%d,\n",flymode,motors.armed());
+  hal.uartB->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
+  hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
+  hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
+  hal.uartB->printf("cx%f,xy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
+  hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed());
 }
   
 // Used for testing
@@ -221,7 +220,7 @@ void sync_uart(void){
     //hal.uartA->printf("Got something!");
     hal.gpio->write(AN7,HIGH); 
     receiveMessage();
-    //sendMessage();
+    sendMessage();
     //printStatustoUart(); 
   } else {
     //if(flush_count % 30) { hal.uartB->flush(); flush_count++; }
