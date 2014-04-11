@@ -25,8 +25,6 @@ void userhook_FastLoop()
 void userhook_50Hz()
 {
     // put your 50Hz code here
-    sync_uart();
-    arm_LED();
 }
 #endif
 
@@ -34,6 +32,8 @@ void userhook_50Hz()
 void userhook_MediumLoop()
 {
     // put your 10Hz code here
+    sync_uart();
+    arm_LED();
 }
 #endif
 
