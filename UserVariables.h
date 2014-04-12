@@ -215,7 +215,6 @@ void printStatustoUart(void){
 int flush_count = 0;
 void sync_uart(void){
   int num = hal.uartB->available();
-  sendMessage();
   if(num > 0){
     //hal.uartA->printf("Got something!");
     hal.gpio->write(AN7,HIGH); 
