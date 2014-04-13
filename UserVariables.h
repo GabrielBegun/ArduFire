@@ -24,6 +24,13 @@ static AP_BattMonitor battery;
 #define HIGH 1
 #define LOW 0
 
+#define THROTTLEMAX 500
+#define PITCHMAX 50
+#define ROLLMAX 50
+#define YAWMAX 50
+
+
+
 //////////////////////////
 // Small Util functions //
 //////////////////////////
@@ -113,24 +120,28 @@ int processCommand(char * command){
     case 'p':
     case 'P':
       //hal.uartB->printf("Changing Pitch to %d\n", value);
+      if(value > PITCHMAX || value < -PITCHMAX) value = 0;
       receivedCommands.pitch = value;
       return 1;
       break;
     case 'r':
     case 'R':
       //hal.uartB->printf("Changing Roll to %d\n", value);
+      if(value > ROLLMAX || value < -ROLLMAX) value = 0;
       receivedCommands.roll = value;
       return 1;
       break;
     case 'y':
     case 'Y':
       //hal.uartB->printf("Changing Yaw to %d\n", value);
+      if(value > YAWMAX || value < -YAWMAX) value = 0;
       receivedCommands.yaw = value;
       return 1;
       break;
     case 't':
     case 'T': 
       //hal.uartB->printf("Changing Throttle to %d\n", value);
+      if(value > THROTTLEMAX) value = 0;
       receivedCommands.throttle = value;
       return 1;
       break;
