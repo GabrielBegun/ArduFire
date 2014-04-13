@@ -47,6 +47,6 @@ void userhook_SlowLoop()
 #ifdef USERHOOK_SUPERSLOWLOOP
 void userhook_SuperSlowLoop()
 {
-    sendMessage();
+    //sendMessage();
 }
 #endif

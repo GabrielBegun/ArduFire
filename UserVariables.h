@@ -95,12 +95,18 @@ void prepareUartB(){
 int processCommand(char * command){
   char key = command[0];
   int value = (command[1]-'0') * 1000 + (command[2]-'0') * 100 + (command[3]-'0') * 10 + (command[4]-'0') * 1;
+  
   switch(key){
     case 'a':
     case 'A':
       //hal.uartB->printf("Changing armMotors to %d\n", value);
       receivedCommands.armMotors = value;
-      if(value != 0 && flymode == auto_mode) { init_arm_motors(); } 
+      if(value != 0 && flymode == auto_mode) { 
+        receivedCommands.pitch = 0;
+        receivedCommands.yaw = 0;
+        receivedCommands.throttle = 0;
+        receivedCommands.powerOff = 0;
+        init_arm_motors(); } 
       else { init_disarm_motors(); }
       return 1;
       break;
@@ -133,6 +139,13 @@ int processCommand(char * command){
       //hal.uartB->printf("Changing PowerOff to %d\n", value);
       // TODO
       receivedCommands.powerOff = value;
+      if(value != 0 && flymode == auto_mode) { 
+        receivedCommands.pitch = 0;
+        receivedCommands.yaw = 0;
+        receivedCommands.throttle = 0;
+        receivedCommands.armMotors = 0;
+        init_disarm_motors(); 
+      } 
       return 1;
       break;
     default:
@@ -162,7 +175,15 @@ void receiveMessage(void){
     while(!isValid( (char) data) && (whileLoopFailsafe++) <= WHILELOOPFAILSAFE_MAX){ data = hal.uartB->read(); } 
     start[ii] = (char) data;
   }
+  
   if(start[0] == 's'){
+    if(isNumber(start[1])) num_commands = (start[1] - '0') * 10;
+    else { return; }
+    if(isNumber(start[2])) num_commands += (start[2] - '0'); 
+    else { return; }
+  } else { return; }
+  
+/*  if(start[0] == 's'){
     if(isNumber(start[1])) num_commands = (start[1] - '0') * 10;
     else { hal.uartB->printf("Error in first command [1] \n"); return; }
     if(isNumber(start[2])) num_commands += (start[2] - '0'); 
@@ -171,7 +192,7 @@ void receiveMessage(void){
   } else {
     hal.uartB->printf("Error in first command [0]. Got %s\n", start);
     return;
-  }
+  }*/
   
   // Receve the rest of the commands
   while((num_commands--) && (whileLoopFailsafe++) <= WHILELOOPFAILSAFE_MAX){
@@ -183,7 +204,7 @@ void receiveMessage(void){
     } 
     //hal.uartB->printf("Command %d: %s \n", num_commands, command);
     //hal.uartA->printf("Command %d: %s \n", num_commands, command);
-    if(processCommand(command) == 0) hal.uartB->printf("Error parsing command!\n");
+    if(processCommand(command) == 0) return; //hal.uartB->printf("Error parsing command!\n");
   }
 }
 
@@ -219,10 +240,11 @@ void sync_uart(void){
     //hal.uartA->printf("Got something!");
     hal.gpio->write(AN7,HIGH); 
     receiveMessage();
-    
+    sendMessage();
     //printStatustoUart(); 
   } else {
     //if(flush_count % 30) { hal.uartB->flush(); flush_count++; }
+    hal.uartB->flush();
     hal.gpio->write(AN7,LOW);
   }
 }
