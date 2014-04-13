@@ -17,7 +17,7 @@ static void failsafe_radio_on_event()
         case ACRO:
         case SPORT:
             // if throttle is zero disarm motors
-            if (g.rc_3.control_in == 0) {
+            /*if (g.rc_3.control_in == 0) {
                 init_disarm_motors();
             }else if(g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) {
                 // if failsafe_throttle is 3 (i.e. FS_THR_ENABLED_ALWAYS_LAND) land immediately
@@ -26,10 +26,10 @@ static void failsafe_radio_on_event()
                 if (!set_mode(RTL)) {
                     set_mode(LAND);
                 }
-            }else{
+            }else{ */
                 // We have no GPS or are very close to home so we will land
                 set_mode(LAND);
-            }
+            //}
             break;
         case AUTO:
             // failsafe_throttle is 1 do RTL, 2 means continue with the mission

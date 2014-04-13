@@ -122,7 +122,7 @@ static void read_radio()
         if ((elapsed >= FAILSAFE_RADIO_TIMEOUT_MS)
                 && g.failsafe_throttle && motors.armed() && !failsafe.radio) {
             Log_Write_Error(ERROR_SUBSYSTEM_RADIO, ERROR_CODE_RADIO_LATE_FRAME);
-            set_failsafe_radio(true);
+            //set_failsafe_radio(true);
         }
     }
 }
@@ -150,7 +150,7 @@ static void set_throttle_and_failsafe(uint16_t throttle_pwm)
         failsafe.radio_counter++;
         if( failsafe.radio_counter >= FS_COUNTER ) {
             failsafe.radio_counter = FS_COUNTER;  // check to ensure we don't overflow the counter
-            set_failsafe_radio(true);
+            //set_failsafe_radio(true);
             g.rc_3.set_pwm(throttle_pwm);   // pass through failsafe throttle
         }
     }else{

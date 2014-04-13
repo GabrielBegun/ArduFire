@@ -721,7 +721,7 @@ static int16_t get_pilot_desired_throttle(int16_t throttle_control)
 
     // exit immediately in the simple cases
     if( throttle_control == 0 || g.throttle_mid == 500) {
-        return throttle_control;
+        return throttle_control;// Ben says look here
     }
 
     // ensure reasonable throttle values
@@ -753,7 +753,7 @@ static int16_t get_pilot_desired_climb_rate(int16_t throttle_control)
     int16_t desired_rate = 0;
 
     // throttle failsafe check
-    if( failsafe.radio ) {
+    if( failsafe.radio ) {//Ben says look here
         return 0;
     }
 
@@ -935,7 +935,7 @@ get_throttle_land()
         get_throttle_rate_stabilized(-abs(g.land_speed));
 
         // disarm when the landing detector says we've landed and throttle is at min (or we're in failsafe so we have no pilot thorottle input)
-#if LAND_REQUIRE_MIN_THROTTLE_TO_DISARM == ENABLED
+#if LAND_REQUIRE_MIN_THROTTLE_TO_DISARM == ENABLED //Ben says look here
         if( ap.land_complete && (g.rc_3.control_in == 0 || failsafe.radio) ) {
 #else
         if (ap.land_complete) {
@@ -956,6 +956,7 @@ static void reset_land_detector()
 // returns true if we have landed
 static bool update_land_detector()
 {
+  /*
     // detect whether we have landed by watching for low climb rate and minimum throttle
     if (abs(climb_rate) < 20 && motors.limit.throttle_lower) {
         if (!ap.land_complete) {
@@ -967,14 +968,14 @@ static bool update_land_detector()
                 land_detector = 0;
             }
         }
-    }else if (g.rc_3.control_in != 0 || failsafe.radio){    // zero throttle locks land_complete as true
+    }else if (g.rc_3.control_in != 0 || failsafe.radio){    // zero throttle locks land_complete as true, Ben says look here
         // we've sensed movement up or down so reset land_detector
         land_detector = 0;
         if(ap.land_complete) {
             set_land_complete(false);
         }
     }
-
+*/
     // return current state of landing
     return ap.land_complete;
 }
