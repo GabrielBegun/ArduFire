@@ -9,7 +9,9 @@ void userhook_init()
   hal.gpio->pinMode(AN8, OUTPUT);
   
   prepareUartB();
- 
+
+  battery.set_monitoring(AP_BATT_MONITOR_VOLTAGE_AND_CURRENT);
+  
   //hal.uartA->begin(9600);
 }
 #endif

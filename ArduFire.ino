@@ -756,7 +756,7 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { userhook_50Hz,         2,    100  },
 #endif
 #ifdef USERHOOK_MEDIUMLOOP
-    { userhook_MediumLoop,   10,    100 },
+    { userhook_MediumLoop,   10,    1000 },
 #endif
 #ifdef USERHOOK_SLOWLOOP
     { userhook_SlowLoop,     30,    100 },
@@ -1142,12 +1142,13 @@ bool set_yaw_mode(uint8_t new_yaw_mode)
 void update_yaw_mode(void)
 {
     int16_t pilot_yaw;
-    /*if(flymode == auto_mode){
+    if(flymode == auto_mode){
       pilot_yaw = receivedCommands.yaw;
-      receivedCommands.yaw = 0;
-    } else {*/
+      //yaw_mode = YAW_HOLD;
+      //receivedCommands.yaw = 0;
+    } else {
       pilot_yaw = g.rc_4.control_in;
-    //}
+    }
   
     // do not process pilot's yaw input during radio failsafe
     if (failsafe.radio) {

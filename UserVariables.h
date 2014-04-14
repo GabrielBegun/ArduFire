@@ -220,22 +220,19 @@ void receiveMessage(void){
 }
 
 void sendMessage(void){
-  Vector3f gyro, accel; 
-  //Vector3f &compass_field, compass_offset; // .x .y .z
   float b_voltage = battery.voltage();
   float b_current = battery.current_amps();
   float b_current_mah = battery.current_total_mah();
-  gyro = ins.get_gyro();
-  accel = ins.get_accel();
-  //compass.read();
+  Vector3f gyro = ins.get_gyro();
+  Vector3f accel = ins.get_accel();
   const Vector3f &compass_field = compass.get_field();
   //compass_offset = compass.get_offset();
-  /*hal.uartB->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
-  hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
+  hal.uartB->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
+  /*hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
   hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
   hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
   hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed()); */
-  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
+  //hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
   hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed());
 }
   
