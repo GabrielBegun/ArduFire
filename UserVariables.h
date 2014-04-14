@@ -249,12 +249,14 @@ void printStatustoUart(void){
 int flush_count = 0;
 void sync_uart(void){
   int num = hal.uartB->available();
-  if(num > 0){
-    //hal.uartA->printf("Got something!");
-    hal.gpio->write(AN7,HIGH); 
-    receiveMessage();
-    sendMessage();
-    //printStatustoUart(); 
+  if(num > 0) {
+    if(hal.uartB->read() == 's') {
+      //hal.uartA->printf("Got something!");
+      hal.gpio->write(AN7,HIGH); 
+      receiveMessage();
+      sendMessage();
+      //printStatustoUart();
+    } 
   } else {
     //if(flush_count % 30) { hal.uartB->flush(); flush_count++; }
     hal.uartB->flush();

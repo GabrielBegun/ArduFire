@@ -1142,12 +1142,12 @@ bool set_yaw_mode(uint8_t new_yaw_mode)
 void update_yaw_mode(void)
 {
     int16_t pilot_yaw;
-    if(flymode == auto_mode){
+    /*if(flymode == auto_mode){
       pilot_yaw = receivedCommands.yaw;
       receivedCommands.yaw = 0;
-    } else {
+    } else {*/
       pilot_yaw = g.rc_4.control_in;
-    }
+    //}
   
     // do not process pilot's yaw input during radio failsafe
     if (failsafe.radio) {
@@ -1374,15 +1374,15 @@ void update_roll_pitch_mode(void)
     switch(roll_pitch_mode) {
     case ROLL_PITCH_ACRO:
         // copy user input for reporting purposes
-        if(flymode == auto_mode){
+        /*if(flymode == auto_mode){
             control_roll = receivedCommands.roll;
             control_pitch = receivedCommands.pitch;
             receivedCommands.roll = 0;
             receivedCommands.pitch = 0;
-         } else {
+         } else {*/
             control_roll = g.rc_1.control_in;
             control_pitch = g.rc_1.control_in;
-         }
+         //}
 
         acro_level_mix = constrain_float(1-max(max(abs(g.rc_1.control_in), abs(g.rc_2.control_in)), abs(g.rc_4.control_in))/4500.0, 0, 1)*cos_pitch_x;
         get_roll_rate_stabilized_bf(g.rc_1.control_in);

@@ -84,6 +84,7 @@ static void arm_motors_check()
 // called at 1hz
 static void auto_disarm_check()
 {
+    return;
     static uint8_t auto_disarming_counter;
 
     // exit immediately if we are already disarmed or throttle is not zero
