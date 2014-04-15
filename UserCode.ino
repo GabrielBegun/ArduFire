@@ -49,6 +49,9 @@ void userhook_SlowLoop()
 #ifdef USERHOOK_SUPERSLOWLOOP
 void userhook_SuperSlowLoop()
 {
-    //sendMessage();
+    static int count = 0;
+    if(count++ %2 == 0){
+      sendMessageStatus();
+    }
 }
 #endif
