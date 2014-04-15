@@ -154,7 +154,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: MAG_ENABLE
     // @DisplayName: Compass enable/disable
     // @Description: Setting this to Enabled(1) will enable the compass. Setting this to Disabled(0) will disable the compass
-    // @Values: 0:Disabled,1:Enabled
+    // @Values: 0:Disabled,1:Enabled,on:MAGNETOMETER
     // @User: Standard
     GSCALAR(compass_enabled,        "MAG_ENABLE",   MAGNETOMETER),
 

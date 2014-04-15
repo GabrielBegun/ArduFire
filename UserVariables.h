@@ -14,6 +14,15 @@
 static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
 static AP_BattMonitor battery;
 
+static uint8_t rate_targets_frame = EARTH_FRAME;    // indicates whether rate targets provided in earth or body frame
+static int32_t roll_rate_target_ef;
+static int32_t pitch_rate_target_ef;
+static int32_t yaw_rate_target_ef;
+static int32_t roll_rate_target_bf;     // body frame roll rate target
+static int32_t pitch_rate_target_bf;    // body frame pitch rate target
+static int32_t yaw_rate_target_bf;      // body frame yaw rate target
+
+
 // LED PINS
 #define AN5 59 // Fly mode. One means user
 #define AN6 60 // armed
@@ -220,24 +229,28 @@ void receiveMessage(void){
 }
 
 void sendMessageReply(void){
-  float b_voltage = battery.voltage();
-  float b_current = battery.current_amps();
-  float b_current_mah = battery.current_total_mah();
-  Vector3f gyro = ins.get_gyro();
-  Vector3f accel = ins.get_accel();
-  const Vector3f &compass_field = compass.get_field();
-  //compass_offset = compass.get_offset();
-  //hal.uartB->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
-  /*hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
-  hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
-  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
-  hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed()); */
-  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
-  hal.uartB->printf("mo%d,ar%d,\n", flymode, motors.armed());
+//  float b_voltage = battery.voltage();
+//  float b_current = battery.current_amps();
+//  float b_current_mah = battery.current_total_mah();
+//  hal.uartB->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
+//  Vector3f gyro = ins.get_gyro();  
+//  hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
+//  Vector3f accel = ins.get_accel();  
+//  hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
+//  const Vector3f &mag_offsets = compass.get_offsets();  
+//  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
+//  const Vector3f &compass_field = compass.get_field(); 
+//  hal.uartB->printf("cox%f,coy%f,coz%f\n",mag_offsets.x, mag_offsets.y, mag_offsets.z);
+//  float yaw_target_body = yaw_rate_target_bf;
+//  float yaw_target_earth = yaw_rate_target_ef;
+//  hal.uartB->printf("yb%f,ye%f\n", yaw_target_body, yaw_target_earth);
+  hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed());
+  
+
 }
   
 void sendMessageStatus(void){
-float b_voltage = battery.voltage();
+  /*float b_voltage = battery.voltage();
   float b_current = battery.current_amps();
   float b_current_mah = battery.current_total_mah();
   Vector3f gyro = ins.get_gyro();
@@ -247,11 +260,11 @@ float b_voltage = battery.voltage();
   hal.uartB->printf("bv%f,bc%f,bm%f,\n", b_voltage, b_current, b_current_mah); 
   hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
   hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
-  //hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
-  //hal.uartB->printf("mo%d,ar%d,\n", flymode, motors.armed());
+  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
+  hal.uartB->printf("mo%d,ar%d,\n", flymode, motors.armed()); */  
 }
 // Used for testing
-void printStatustoUart(void){
+void printStatustoUart(void){   
   //hal.uartB->printf("Status: Armed %d, Pitch %d, Yaw %d, Roll %d, Throttle %d, PowerOff %d\n", receivedCommands.armMotors, receivedCommands.pitch, receivedCommands.yaw, receivedCommands.roll,   receivedCommands.throttle, receivedCommands.powerOff);
   hal.uartA->printf("Status: Armed %d, Pitch %d, Yaw %d, Roll %d, Throttle %d, PowerOff %d\n", receivedCommands.armMotors, receivedCommands.pitch, receivedCommands.yaw, receivedCommands.roll,   receivedCommands.throttle, receivedCommands.powerOff);
 }
