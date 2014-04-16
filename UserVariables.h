@@ -65,15 +65,19 @@ enum FlyMode {
 FlyMode flymode = user_mode; // default, global variable
 
 void update_mode(){
+  if(g.rc_5.radio_in > 1400) flymode = user_mode;
+  else flymode = auto_mode;
+
   if(flymode == user_mode){
     hal.gpio->write(AN5,HIGH);
     failsafe_disable();
+    set_throttle_mode(AUTO_THR);
   } else {
     hal.gpio->write(AN5,LOW);
     failsafe_enable();
+    set_throttle_mode(STABILIZE_THR);
   }
-  if(g.rc_5.radio_in > 1400) flymode = user_mode;
-  else flymode = auto_mode;
+
   /*
   // auto_mode can only be set when the motors are disarmed
   if(motors.armed())
@@ -95,6 +99,7 @@ static struct {
   int yaw;
   int roll;
   int throttle;
+  int targetHeight;
   int powerOff;
 } receivedCommands;
 
@@ -127,6 +132,10 @@ int processCommand(char * command){
         } else { init_disarm_motors(); }
       }
       return 1;
+      break;
+    case 'h':
+    case 'H':
+      receivedCommands.targetHeight = value;
       break;
     case 'p':
     case 'P':
@@ -250,6 +259,7 @@ void sendMessageReply(void){
 }
   
 int send_next_status = 0;
+Vector3f temp_vec3;
 void sendMessageStatus(void){
   switch(send_next_status++ %5) {
     case 0:
@@ -259,11 +269,11 @@ void sendMessageStatus(void){
       hal.uartB->printf("bv%f,bc%f,bm%f,\n", battery.voltage(), battery.current_amps(), battery.current_total_mah()); 
     break;
     case 2:
-      Vector3f gyro = ins.get_gyro();  
+      temp_vec3 = ins.get_gyro();  
       hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
     break;
     case 3:
-      Vector3f accel = ins.get_accel();  
+      temp_vec3 = ins.get_accel();  
       hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
     break;
     case 4:
