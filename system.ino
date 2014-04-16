@@ -499,6 +499,7 @@ static bool set_mode(uint8_t mode)
 // update_auto_armed - update status of auto_armed flag
 static void update_auto_armed()
 {
+    return;
     // disarm checks
     if(ap.auto_armed){
         // if motors are disarmed, auto_armed should also be false

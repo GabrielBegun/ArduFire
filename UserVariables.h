@@ -142,6 +142,7 @@ int processCommand(char * command){
     case 'h':
     case 'H':
       receivedCommands.targetHeight = value;
+      wp_nav.set_destination(Vector3f(0,0,value));
       break;
     case 'p':
     case 'P':
