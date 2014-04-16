@@ -1538,7 +1538,7 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
 
         case THROTTLE_HOLD:
         case THROTTLE_AUTO:
-            if(flymode == usermode)
+            if(flymode == auto_mode)
               controller_desired_alt = receivedCommands.targetHeight;
             else
               controller_desired_alt = get_initial_alt_hold(current_loc.alt, climb_rate);     // reset controller desired altitude to current altitude

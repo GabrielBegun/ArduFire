@@ -112,6 +112,7 @@ void prepareUartB(){
   receivedCommands.yaw = 0;
   receivedCommands.throttle = 0;
   receivedCommands.powerOff = 0;
+  receivedCommands.targetHeight = 0;
 }
 
 // Process the command in a switch statement. Returns 0 if processing fails 
@@ -129,6 +130,7 @@ int processCommand(char * command){
           receivedCommands.pitch = 0;
           receivedCommands.yaw = 0;
           receivedCommands.throttle = 0;
+          receivedCommands.targetHeight = 0;
           receivedCommands.powerOff = 0;
           init_arm_motors();  
         } else { init_disarm_motors(); }
@@ -252,12 +254,13 @@ void sendMessageReply(void){
 //  hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
 //  const Vector3f &mag_offsets = compass.get_offsets();  
 //   hal.uartB->printf("cox%f,coy%f,coz%f\n",mag_offsets.x, mag_offsets.y, mag_offsets.z);
-  const Vector3f &compass_field = compass.get_field(); 
-  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
+//  const Vector3f &compass_field = compass.get_field(); 
+//  hal.uartB->printf("cx%f,cy%f,cz%f,\n", compass_field.x, compass_field.y, compass_field.z);
 //  float yaw_target_body = yaw_rate_target_bf;
 //  float yaw_target_earth = yaw_rate_target_ef;
 //  hal.uartB->printf("yb%f,ye%f\n", yaw_target_body, yaw_target_earth);
 //  hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed());
+    hall.uartB->printf("Target Height %d\n",receivedCommands.targetHeight);
 }
   
 int send_next_status = 0;
