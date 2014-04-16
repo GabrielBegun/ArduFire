@@ -72,10 +72,12 @@ void update_mode(){
     hal.gpio->write(AN5,HIGH);
     failsafe_disable();
     set_throttle_mode(AUTO_THR);
+    set_auto_armed(true);
   } else {
     hal.gpio->write(AN5,LOW);
     failsafe_enable();
     set_throttle_mode(STABILIZE_THR);
+    set_auto_armed(false);
   }
 
   /*

@@ -1538,7 +1538,10 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
 
         case THROTTLE_HOLD:
         case THROTTLE_AUTO:
-            controller_desired_alt = get_initial_alt_hold(current_loc.alt, climb_rate);     // reset controller desired altitude to current altitude
+            if(flymode == usermode)
+              controller_desired_alt = receivedCommands.targetHeight;
+            else
+              controller_desired_alt = get_initial_alt_hold(current_loc.alt, climb_rate);     // reset controller desired altitude to current altitude
             wp_nav.set_desired_alt(controller_desired_alt);                                 // same as above but for loiter controller
             if (throttle_mode_manual(throttle_mode)) {  // reset the alt hold I terms if previous throttle mode was manual
                 reset_throttle_I();
@@ -1587,7 +1590,10 @@ void update_throttle_mode(void)
     }
 #endif // FRAME_CONFIG != HELI_FRAME
 
-    if(flymode == auto_mode){ // custom
+    if(flymode == auto_mode){ 
+    // custom
+    THROTTLE_AUTO
+
     // Same idea as Throttle Manual
       //hal.uartB->printf("Auto Throttle %d\n", receivedCommands.throttle);
       //set_throttle_out(receivedCommands.throttle, false);
