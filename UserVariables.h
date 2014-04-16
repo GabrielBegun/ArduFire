@@ -260,7 +260,7 @@ void sendMessageReply(void){
 //  float yaw_target_earth = yaw_rate_target_ef;
 //  hal.uartB->printf("yb%f,ye%f\n", yaw_target_body, yaw_target_earth);
 //  hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed());
-    hall.uartB->printf("Target Height %d\n",receivedCommands.targetHeight);
+    hal.uartB->printf("Target Height %d\n",receivedCommands.targetHeight);
 }
   
 int send_next_status = 0;
@@ -275,11 +275,11 @@ void sendMessageStatus(void){
     break;
     case 2:
       temp_vec3 = ins.get_gyro();  
-      hal.uartB->printf("gx%f,gy%f,gz%f,\n",gyro.x, gyro.y, gyro.z);
+      hal.uartB->printf("gx%f,gy%f,gz%f,\n",temp_vec3.x, temp_vec3.y, temp_vec3.z);
     break;
     case 3:
       temp_vec3 = ins.get_accel();  
-      hal.uartB->printf("ax%f,ay%f,az%f,\n",accel.x, accel.y, accel.z);
+      hal.uartB->printf("ax%f,ay%f,az%f,\n",temp_vec3.x, temp_vec3.y, temp_vec3.z);
     break;
     case 4:
       float yaw_target_body = yaw_rate_target_bf;
