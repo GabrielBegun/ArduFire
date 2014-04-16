@@ -133,7 +133,9 @@ int processCommand(char * command){
           receivedCommands.targetHeight = 0;
           receivedCommands.powerOff = 0;
           init_arm_motors();  
-        } else { init_disarm_motors(); }
+          set_land_complete(false);
+          wp_nav.set_destination(Vector3f(0,0,40));
+        } else { init_disarm_motors(); reset_land_detector(); }
       }
       return 1;
       break;

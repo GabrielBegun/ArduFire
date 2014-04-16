@@ -1723,7 +1723,7 @@ void update_throttle_mode(void)
         break;
 
     }
-    } // TEMP for if statement on flymode
+   // } // TEMP for if statement on flymode
 }
 
 // set_target_alt_for_reporting - set target altitude in cm for reporting purposes (logs and gcs)
