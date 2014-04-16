@@ -316,6 +316,18 @@ enum FlyMode {
     user_mode = 1
 };
 
+
+//* Read info from BBB */
+static struct {
+  int armMotors;
+  int pitch;
+  int yaw;
+  int roll;
+  int throttle;
+  int targetHeight;
+  int powerOff;
+} receivedCommands;
+
 FlyMode flymode = user_mode; // default, global variable
 
 void update_mode(){
@@ -348,25 +360,15 @@ void update_mode(){
 // uartB communications //
 //////////////////////////
 
-//* Read info from BBB */
-static struct {
-  int armMotors;
-  int pitch;
-  int yaw;
-  int roll;
-  int throttle;
-  int targetHeight;
-  int powerOff;
-} receivedCommands;
 
 void prepareUartB(){
   hal.uartB->begin(9600);
   receivedCommands.armMotors = 0;
   receivedCommands.pitch = 0;
   receivedCommands.yaw = 0;
-  receivedCommands.throttle = 0;
+  //receivedCommands.throttle = 0;
   receivedCommands.powerOff = 0;
-  receivedCommands.targetHeight = 0;
+  //receivedCommands.targetHeight = 0;
 }
 
 // Process the command in a switch statement. Returns 0 if processing fails 
@@ -381,22 +383,25 @@ int processCommand(char * command){
       receivedCommands.armMotors = value;
       if(flymode == auto_mode) {
         if(value != 0) { 
-          receivedCommands.pitch = 0;
+          /*receivedCommands.pitch = 0;
           receivedCommands.yaw = 0;
           receivedCommands.throttle = 0;
           receivedCommands.targetHeight = 0;
           receivedCommands.powerOff = 0;
-          init_arm_motors();  
-          set_land_complete(false);
-          wp_nav.set_destination(Vector3f(0,0,40));
-        } else { init_disarm_motors(); reset_land_detector(); }
+          init_arm_motors();  */
+          //set_land_complete(false);
+          //wp_nav.set_destination(Vector3f(0,0,0));
+        } else { 
+          init_disarm_motors(); 
+          reset_land_detector(); 
+        }
       }
       return 1;
       break;
     case 'h':
     case 'H':
       receivedCommands.targetHeight = value;
-      wp_nav.set_destination(Vector3f(0,0,value));
+      //wp_nav.set_destination(Vector3f(0,0,value));
       break;
     case 'p':
     case 'P':
@@ -517,7 +522,7 @@ void sendMessageReply(void){
 //  float yaw_target_earth = yaw_rate_target_ef;
 //  hal.uartB->printf("yb%f,ye%f\n", yaw_target_body, yaw_target_earth);
 //  hal.uartB->printf("mo%d,ar%d,\n",flymode,motors.armed());
-    hal.uartB->printf("Target Height %d\n",receivedCommands.targetHeight);
+    hal.uartB->printf("TH %d, TT %d\n", receivedCommands.targetHeight, receivedCommands.throttle);
 }
   
 int send_next_status = 0;
@@ -565,7 +570,7 @@ void sync_uart(void){
     } 
   } else {
     //if(flush_count % 30) { hal.uartB->flush(); flush_count++; }
-    hal.uartB->flush();
+  //  hal.uartB->flush();
     hal.gpio->write(AN7,LOW);
   }
 }
