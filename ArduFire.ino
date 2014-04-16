@@ -726,23 +726,23 @@ AP_Param param_loader(var_info, WP_START_BYTE);
  */
 static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { throttle_loop,         2,     450 },
-    { update_nav_mode,       1,     400 },
+//    { update_nav_mode,       1,     400 },
     { update_batt_compass,  10,     720 },
-    { read_aux_switches,    10,      50 },
+//    { read_aux_switches,    10,      50 },
     { arm_motors_check,     10,      10 },
-    { auto_trim,            10,     140 },
+    { auto_trim,            10,     140 }, // CHECK
     { update_altitude,      10,    1000 },
-    { run_nav_updates,      10,     800 },
+//    { run_nav_updates,      10,     800 },
     { three_hz_loop,        33,      90 },
     { compass_accumulate,    2,     420 },
     { barometer_accumulate,  2,     250 },
     { update_notify,         2,     100 },
     { one_hz_loop,         100,     420 },
     { crash_check,          10,      20 },
-    { ten_hz_logging_loop,  10,     300 },
-    { fifty_hz_logging_loop, 2,     220 },
+//    { ten_hz_logging_loop,  10,     300 },
+//    { fifty_hz_logging_loop, 2,     220 },
     { perf_update,        1000,     200 },
-    { read_receiver_rssi,   10,      50 },
+//    { read_receiver_rssi,   10,      50 },
 #ifdef USERHOOK_FASTLOOP
     { userhook_FastLoop,     1,    100  },
 #endif
@@ -756,7 +756,7 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { userhook_SlowLoop,     30,    100 },
 #endif
 #ifdef USERHOOK_SUPERSLOWLOOP
-    { userhook_SuperSlowLoop,100,   1000 },
+    { userhook_SuperSlowLoop,101,   1000 },
 #endif
 };
 
@@ -954,40 +954,6 @@ static void update_batt_compass(void)
     throttle_integrator += g.rc_3.servo_out;
 }
 
-// ten_hz_logging_loop
-// should be run at 10hz
-static void ten_hz_logging_loop()
-{
-    if (g.log_bitmask & MASK_LOG_ATTITUDE_MED) {
-        Log_Write_Attitude();
-    }
-    if (g.log_bitmask & MASK_LOG_RCIN) {
-        DataFlash.Log_Write_RCIN();
-    }
-    if (g.log_bitmask & MASK_LOG_RCOUT) {
-        DataFlash.Log_Write_RCOUT();
-    }
-}
-
-// fifty_hz_logging_loop
-// should be run at 50hz
-static void fifty_hz_logging_loop()
-{
-#if HIL_MODE != HIL_MODE_DISABLED
-    // HIL for a copter needs very fast update of the servo values
-    gcs_send_message(MSG_RADIO_OUT);
-#endif
-
-#if HIL_MODE == HIL_MODE_DISABLED
-    if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST) {
-        Log_Write_Attitude();
-    }
-
-    if (g.log_bitmask & MASK_LOG_IMU) {
-        DataFlash.Log_Write_IMU(ins);
-    }
-#endif
-}
 
 // three_hz_loop - 3.3hz loop
 static void three_hz_loop()
@@ -1032,8 +998,9 @@ static void one_hz_loop()
     }
 
     // auto disarm checks
-    auto_disarm_check();
+//    auto_disarm_check();
 
+    // CHECK
     if (!motors.armed()) {
         // make it possible to change ahrs orientation at runtime during initial config
         ahrs.set_orientation();
