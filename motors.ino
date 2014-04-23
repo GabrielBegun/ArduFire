@@ -80,32 +80,6 @@ static void arm_motors_check()
     }
 }
 
-// auto_disarm_check - disarms the copter if it has been sitting on the ground in manual mode with throttle low for at least 15 seconds
-// called at 1hz
-static void auto_disarm_check()
-{
-    return;
-    static uint8_t auto_disarming_counter;
-
-    // exit immediately if we are already disarmed or throttle is not zero
-    if (!motors.armed() || g.rc_3.control_in > 0) {
-        auto_disarming_counter = 0;
-        return;
-    }
-
-    // allow auto disarm in manual flight modes or Loiter/AltHold if we're landed
-    if(manual_flight_mode(control_mode) || (ap.land_complete && (control_mode == LOITER || control_mode == ALT_HOLD))) {
-        auto_disarming_counter++;
-
-        if(auto_disarming_counter >= AUTO_DISARMING_DELAY) {
-            init_disarm_motors();
-            auto_disarming_counter = 0;
-        }
-    }else{
-        auto_disarming_counter = 0;
-    }
-}
-
 // init_arm_motors - performs arming process including initialisation of barometer and gyros
 static void init_arm_motors()
 {

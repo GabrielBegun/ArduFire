@@ -61,36 +61,6 @@ static uint8_t read_3pos_switch(int16_t radio_in){
     return AUX_SWITCH_MIDDLE;                                       // switch is in middle position
 }
 
-// read_aux_switches - checks aux switch positions and invokes configured actions
-static void read_aux_switches()
-{
-    uint8_t switch_position;
-
-    // exit immediately during radio failsafe
-    if (failsafe.radio || failsafe.radio_counter != 0) {
-        return;
-    }
-
-    // check if ch7 switch has changed position
-    switch_position = read_3pos_switch(g.rc_7.radio_in);
-    if (ap.CH7_flag != switch_position) {
-        // set the CH7 flag
-        ap.CH7_flag = switch_position;
-
-        // invoke the appropriate function
-        do_aux_switch_function(g.ch7_option, ap.CH7_flag);
-    }
-
-    // check if Ch8 switch has changed position
-    switch_position = read_3pos_switch(g.rc_8.radio_in);
-    if (ap.CH8_flag != switch_position) {
-        // set the CH8 flag
-        ap.CH8_flag = switch_position;
-
-        // invoke the appropriate function
-        do_aux_switch_function(g.ch8_option, ap.CH8_flag);
-    }
-}
 
 // init_aux_switches - invoke configured actions at start-up for aux function where it is safe to do so
 static void init_aux_switches()
@@ -383,6 +353,7 @@ static void auto_trim()
         // add trim to ahrs object
         // save to eeprom on last iteration
         ahrs.add_trim(roll_trim_adjustment, pitch_trim_adjustment, (auto_trim_counter == 0));
+        // CHECK
 
         // on last iteration restore leds and accel gains to normal
         if(auto_trim_counter == 0) {

@@ -12,7 +12,7 @@
 #define LOGGING_ENABLED       DISABLED            // disable dataflash logging to save 11K of flash space
 #define GPS_PROTOCOL 		GPS_PROTOCOL_NONE
 //#define AUTOTUNE              DISABLED            // disable the auto tune functionality to save 7k of flash
-//#define CONFIG_SONAR          DISABLED            // disable sonar to save 1k of flash
+#define CONFIG_SONAR          ENABLE            // disable sonar to save 1k of flash
 
 // features below are disabled by default
 //#define SPRAYER               ENABLED             // enable the crop sprayer feature (two ESC controlled pumps the speed of which depends upon the vehicle's horizontal velocity)

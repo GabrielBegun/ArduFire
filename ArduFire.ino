@@ -401,256 +401,8 @@ static Vector3f omega;
 float tuning_value;
 
 
-////////////////////////////////////////////////////////////////////////////////
-// GPS variables
-////////////////////////////////////////////////////////////////////////////////
-// This is used to scale GPS values for EEPROM storage
-// 10^7 times Decimal GPS means 1 == 1cm
-// This approximation makes calculations integer and it's easy to read
-static const float t7 = 10000000.0;
-// We use atan2 and other trig techniques to calaculate angles
-// We need to scale the longitude up to make these calcs work
-// to account for decreasing distance between lines of longitude away from the equator
-static float scaleLongUp = 1;
-// Sometimes we need to remove the scaling for distance calcs
-static float scaleLongDown = 1;
 
-////////////////////////////////////////////////////////////////////////////////
-// Location & Navigation
-////////////////////////////////////////////////////////////////////////////////
-// This is the angle from the copter to the next waypoint in centi-degrees
-static int32_t wp_bearing;
-// The original bearing to the next waypoint.  used to point the nose of the copter at the next waypoint
-static int32_t original_wp_bearing;
-// The location of home in relation to the copter in centi-degrees
-static int32_t home_bearing;
-// distance between plane and home in cm
-static int32_t home_distance;
-// distance between plane and next waypoint in cm.
-static uint32_t wp_distance;
-// navigation mode - options include NAV_NONE, NAV_LOITER, NAV_CIRCLE, NAV_WP
-static uint8_t nav_mode;
-// Register containing the index of the current navigation command in the mission script
-static int16_t command_nav_index;
-// Register containing the index of the previous navigation command in the mission script
-// Used to manage the execution of conditional commands
-static uint8_t prev_nav_index;
-// Register containing the index of the current conditional command in the mission script
-static uint8_t command_cond_index;
-// Used to track the required WP navigation information
-// options include
-// NAV_ALTITUDE - have we reached the desired altitude?
-// NAV_LOCATION - have we reached the desired location?
-// NAV_DELAY    - have we waited at the waypoint the desired time?
-static float lon_error, lat_error;      // Used to report how many cm we are from the next waypoint or loiter target position
-static int16_t control_roll;            // desired roll angle of copter in centi-degrees
-static int16_t control_pitch;           // desired pitch angle of copter in centi-degrees
-static uint8_t rtl_state;               // records state of rtl (initial climb, returning home, etc)
-static uint8_t land_state;              // records state of land (flying to location, descending)
-
-////////////////////////////////////////////////////////////////////////////////
-// Orientation
-////////////////////////////////////////////////////////////////////////////////
-// Convienience accessors for commonly used trig functions. These values are generated
-// by the DCM through a few simple equations. They are used throughout the code where cos and sin
-// would normally be used.
-// The cos values are defaulted to 1 to get a decent initial value for a level state
-static float cos_roll_x         = 1.0;
-static float cos_pitch_x        = 1.0;
-static float cos_yaw            = 1.0;
-static float sin_yaw;
-static float sin_roll;
-static float sin_pitch;
-
-////////////////////////////////////////////////////////////////////////////////
-// SIMPLE Mode
-////////////////////////////////////////////////////////////////////////////////
-// Used to track the orientation of the copter for Simple mode. This value is reset at each arming
-// or in SuperSimple mode when the copter leaves a 20m radius from home.
-static float simple_cos_yaw = 1.0;
-static float simple_sin_yaw;
-static int32_t super_simple_last_bearing;
-static float super_simple_cos_yaw = 1.0;
-static float super_simple_sin_yaw;
-
-
-// Stores initial bearing when armed - initial simple bearing is modified in super simple mode so not suitable
-static int32_t initial_armed_bearing;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Rate contoller targets
-////////////////////////////////////////////////////////////////////////////////
-// Moved to user space
-
-////////////////////////////////////////////////////////////////////////////////
-// Throttle variables
-////////////////////////////////////////////////////////////////////////////////
-static int16_t throttle_accel_target_ef;    // earth frame throttle acceleration target
-static bool throttle_accel_controller_active;   // true when accel based throttle controller is active, false when higher level throttle controllers are providing throttle output directly
-static float throttle_avg;                  // g.throttle_cruise as a float
-static int16_t desired_climb_rate;          // pilot desired climb rate - for logging purposes only
-static float target_alt_for_reporting;      // target altitude in cm for reporting (logs and ground station)
-
-
-////////////////////////////////////////////////////////////////////////////////
-// ACRO Mode
-////////////////////////////////////////////////////////////////////////////////
-// Used to control Axis lock
-static int32_t acro_roll;                   // desired roll angle while sport mode
-static int32_t acro_roll_rate;              // desired roll rate while in acro mode
-static int32_t acro_pitch;                  // desired pitch angle while sport mode
-static int32_t acro_pitch_rate;             // desired pitch rate while acro mode
-static int32_t acro_yaw_rate;               // desired yaw rate while acro mode
-static float acro_level_mix;                // scales back roll, pitch and yaw inversely proportional to input from pilot
-
-////////////////////////////////////////////////////////////////////////////////
-// Circle Mode / Loiter control
-////////////////////////////////////////////////////////////////////////////////
-Vector3f circle_center;     // circle position expressed in cm from home location.  x = lat, y = lon
-// angle from the circle center to the copter's desired location.  Incremented at circle_rate / second
-static float circle_angle;
-// the total angle (in radians) travelled
-static float circle_angle_total;
-// deg : how many times to circle as specified by mission command
-static uint8_t circle_desired_rotations;
-static float circle_angular_acceleration;       // circle mode's angular acceleration
-static float circle_angular_velocity;           // circle mode's angular velocity
-static float circle_angular_velocity_max;       // circle mode's max angular velocity
-// How long we should stay in Loiter Mode for mission scripting (time in seconds)
-static uint16_t loiter_time_max;
-// How long have we been loitering - The start time in millis
-static uint32_t loiter_time;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// CH7 and CH8 save waypoint control
-////////////////////////////////////////////////////////////////////////////////
-// This register tracks the current Mission Command index when writing
-// a mission using Ch7 or Ch8 aux switches in flight
-static int8_t aux_switch_wp_index;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Battery Sensors
-////////////////////////////////////////////////////////////////////////////////
-// Moved to user Variables
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Altitude
-////////////////////////////////////////////////////////////////////////////////
-// The (throttle) controller desired altitude in cm
-static float controller_desired_alt;
-// The cm we are off in altitude from next_WP.alt – Positive value means we are below the WP
-static int32_t altitude_error;
-// The cm/s we are moving up or down based on filtered data - Positive = UP
-static int16_t climb_rate;
-// The altitude as reported by Sonar in cm – Values are 20 to 700 generally.
-static int16_t sonar_alt;
-static uint8_t sonar_alt_health;   // true if we can trust the altitude from the sonar
-static float target_sonar_alt;      // desired altitude in cm above the ground
-// The altitude as reported by Baro in cm – Values can be quite high
-static int32_t baro_alt;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// flight modes
-////////////////////////////////////////////////////////////////////////////////
-// Flight modes are combinations of Roll/Pitch, Yaw and Throttle control modes
-// Each Flight mode is a unique combination of these modes
-//
-// The current desired control scheme for Yaw
-static uint8_t yaw_mode = STABILIZE_YAW;
-// The current desired control scheme for roll and pitch / navigation
-static uint8_t roll_pitch_mode = STABILIZE_RP;
-// The current desired control scheme for altitude hold
-static uint8_t throttle_mode = STABILIZE_THR;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// flight specific
-////////////////////////////////////////////////////////////////////////////////
-// An additional throttle added to keep the copter at the same altitude when banking
-static int16_t angle_boost;
-// counter to verify landings
-static uint16_t land_detector;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// 3D Location vectors
-////////////////////////////////////////////////////////////////////////////////
-// home location is stored when we have a good GPS lock and arm the copter
-// Can be reset each the copter is re-armed
-static struct   Location home;
-// Current location of the copter
-static struct   Location current_loc;
-// Holds the current loaded command from the EEPROM for navigation
-static struct   Location command_nav_queue;
-// Holds the current loaded command from the EEPROM for conditional scripts
-static struct   Location command_cond_queue;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Navigation Roll/Pitch functions
-////////////////////////////////////////////////////////////////////////////////
-// The Commanded ROll from the autopilot based on optical flow sensor.
-static int32_t of_roll;
-// The Commanded pitch from the autopilot based on optical flow sensor. negative Pitch means go forward.
-static int32_t of_pitch;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Navigation Throttle control
-////////////////////////////////////////////////////////////////////////////////
-// The Commanded Throttle from the autopilot.
-static int16_t nav_throttle;    // 0-1000 for throttle control
-// This is a simple counter to track the amount of throttle used during flight
-// This could be useful later in determining and debuging current usage and predicting battery life
-static uint32_t throttle_integrator;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Navigation Yaw control
-////////////////////////////////////////////////////////////////////////////////
-// The Commanded Yaw from the autopilot.
-static int32_t control_yaw;
-// Yaw will point at this location if yaw_mode is set to YAW_LOOK_AT_LOCATION
-static Vector3f yaw_look_at_WP;
-// bearing from current location to the yaw_look_at_WP
-static int32_t yaw_look_at_WP_bearing;
-// yaw used for YAW_LOOK_AT_HEADING yaw_mode
-static int32_t yaw_look_at_heading;
-// Deg/s we should turn
-static int16_t yaw_look_at_heading_slew;
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Delay Mission Scripting Command
-////////////////////////////////////////////////////////////////////////////////
-static int32_t condition_value;  // used in condition commands (eg delay, change alt, etc.)
-static uint32_t condition_start;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// IMU variables
-////////////////////////////////////////////////////////////////////////////////
-// Integration time (in seconds) for the gyros (DCM algorithm)
-// Updated with the fast loop
-static float G_Dt = 0.02;
-
-////////////////////////////////////////////////////////////////////////////////
-// Inertial Navigation
-////////////////////////////////////////////////////////////////////////////////
-static AP_InertialNav inertial_nav(&ahrs, &barometer, g_gps, gps_glitch);
-
-////////////////////////////////////////////////////////////////////////////////
-// Waypoint navigation object
-// To-Do: move inertial nav up or other navigation variables down here
-////////////////////////////////////////////////////////////////////////////////
-static AC_WPNav wp_nav(&inertial_nav, &ahrs, &g.pi_loiter_lat, &g.pi_loiter_lon, &g.pid_loiter_rate_lat, &g.pid_loiter_rate_lon);
+// A LOT OF STUFF THAT WAS HERE WAS MOVED TO USER SPACE
 
 ////////////////////////////////////////////////////////////////////////////////
 // Performance monitoring
@@ -726,23 +478,23 @@ AP_Param param_loader(var_info, WP_START_BYTE);
  */
 static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { throttle_loop,         2,     450 },
-    { update_nav_mode,       1,     400 },
+//    { update_nav_mode,       1,     400 },
     { update_batt_compass,  10,     720 },
-    { read_aux_switches,    10,      50 },
+//    { read_aux_switches,    10,      50 },
     { arm_motors_check,     10,      10 },
-    { auto_trim,            10,     140 },
+    { auto_trim,            10,     140 }, // CHECK
     { update_altitude,      10,    1000 },
-    { run_nav_updates,      10,     800 },
+//    { run_nav_updates,      10,     800 },
     { three_hz_loop,        33,      90 },
     { compass_accumulate,    2,     420 },
     { barometer_accumulate,  2,     250 },
     { update_notify,         2,     100 },
     { one_hz_loop,         100,     420 },
     { crash_check,          10,      20 },
-    { ten_hz_logging_loop,  10,     300 },
-    { fifty_hz_logging_loop, 2,     220 },
+//    { ten_hz_logging_loop,  10,     300 },
+//    { fifty_hz_logging_loop, 2,     220 },
     { perf_update,        1000,     200 },
-    { read_receiver_rssi,   10,      50 },
+//    { read_receiver_rssi,   10,      50 },
 #ifdef USERHOOK_FASTLOOP
     { userhook_FastLoop,     1,    100  },
 #endif
@@ -756,7 +508,7 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { userhook_SlowLoop,     30,    100 },
 #endif
 #ifdef USERHOOK_SUPERSLOWLOOP
-    { userhook_SuperSlowLoop,100,   1000 },
+    { userhook_SuperSlowLoop,101,   1000 },
 #endif
 };
 
@@ -954,40 +706,6 @@ static void update_batt_compass(void)
     throttle_integrator += g.rc_3.servo_out;
 }
 
-// ten_hz_logging_loop
-// should be run at 10hz
-static void ten_hz_logging_loop()
-{
-    if (g.log_bitmask & MASK_LOG_ATTITUDE_MED) {
-        Log_Write_Attitude();
-    }
-    if (g.log_bitmask & MASK_LOG_RCIN) {
-        DataFlash.Log_Write_RCIN();
-    }
-    if (g.log_bitmask & MASK_LOG_RCOUT) {
-        DataFlash.Log_Write_RCOUT();
-    }
-}
-
-// fifty_hz_logging_loop
-// should be run at 50hz
-static void fifty_hz_logging_loop()
-{
-#if HIL_MODE != HIL_MODE_DISABLED
-    // HIL for a copter needs very fast update of the servo values
-    gcs_send_message(MSG_RADIO_OUT);
-#endif
-
-#if HIL_MODE == HIL_MODE_DISABLED
-    if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST) {
-        Log_Write_Attitude();
-    }
-
-    if (g.log_bitmask & MASK_LOG_IMU) {
-        DataFlash.Log_Write_IMU(ins);
-    }
-#endif
-}
 
 // three_hz_loop - 3.3hz loop
 static void three_hz_loop()
@@ -1032,8 +750,9 @@ static void one_hz_loop()
     }
 
     // auto disarm checks
-    auto_disarm_check();
+//    auto_disarm_check();
 
+    // CHECK
     if (!motors.armed()) {
         // make it possible to change ahrs orientation at runtime during initial config
         ahrs.set_orientation();
@@ -1571,7 +1290,10 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
 
         case THROTTLE_HOLD:
         case THROTTLE_AUTO:
-            controller_desired_alt = get_initial_alt_hold(current_loc.alt, climb_rate);     // reset controller desired altitude to current altitude
+            if(flymode == auto_mode)
+              controller_desired_alt = receivedCommands.targetHeight;
+            else
+              controller_desired_alt = get_initial_alt_hold(current_loc.alt, climb_rate);     // reset controller desired altitude to current altitude
             wp_nav.set_desired_alt(controller_desired_alt);                                 // same as above but for loiter controller
             if (throttle_mode_manual(throttle_mode)) {  // reset the alt hold I terms if previous throttle mode was manual
                 reset_throttle_I();
@@ -1620,12 +1342,15 @@ void update_throttle_mode(void)
     }
 #endif // FRAME_CONFIG != HELI_FRAME
 
-    if(flymode == auto_mode){ // custom
+/*    if(flymode == auto_mode){ 
+    // custom
     // Same idea as Throttle Manual
       //hal.uartB->printf("Auto Throttle %d\n", receivedCommands.throttle);
       //set_throttle_out(receivedCommands.throttle, false);
       //update_throttle_cruise(receivedCommands.throttle);
      //send pilot's output directly to motors
+
+
       pilot_throttle_scaled = get_pilot_desired_throttle(receivedCommands.throttle);
       set_throttle_out(pilot_throttle_scaled, false);
       // check if we've taken off yet
@@ -1638,7 +1363,7 @@ void update_throttle_mode(void)
       set_target_alt_for_reporting(0);
     } else{
       //hal.uartB->printf("Manual Throttle %d\n", get_pilot_desired_throttle(g.rc_3.control_in));
-      
+  */    
     switch(throttle_mode) {
 
     case THROTTLE_MANUAL:
@@ -1750,7 +1475,7 @@ void update_throttle_mode(void)
         break;
 
     }
-    } // TEMP for if statement on flymode
+   // } // TEMP for if statement on flymode
 }
 
 // set_target_alt_for_reporting - set target altitude in cm for reporting purposes (logs and gcs)

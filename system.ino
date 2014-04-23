@@ -100,7 +100,7 @@ static void init_ardupilot()
 #if GPS_PROTOCOL != GPS_PROTOCOL_IMU
     // standard gps running. Note that we need a 256 byte buffer for some
     // GPS types (eg. UBLOX)
-    hal.uartB->begin(38400, 256, 16);
+    //hal.uartB->begin(38400, 256, 16);
 #endif
 
     cliSerial->printf_P(PSTR("\n\nInit " FIRMWARE_STRING
@@ -499,6 +499,7 @@ static bool set_mode(uint8_t mode)
 // update_auto_armed - update status of auto_armed flag
 static void update_auto_armed()
 {
+    return;
     // disarm checks
     if(ap.auto_armed){
         // if motors are disarmed, auto_armed should also be false
@@ -508,7 +509,7 @@ static void update_auto_armed()
         }
         // if in stabilize or acro flight mode and throttle is zero, auto-armed should become false
         if(manual_flight_mode(control_mode) && g.rc_3.control_in == 0 && !failsafe.radio) {
-            set_auto_armed(false);
+            //set_auto_armed(false);
         }
     }else{
         // arm checks
